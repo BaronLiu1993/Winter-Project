@@ -5,25 +5,26 @@ An interactive, web-based application for data cleaning and building machine lea
 ## Features
 
 ### Data Cleaning and Preprocessing
-- **Intuitive UI:** Easily explore, clean, and transform datasets.
-- **Data Handling:** Manage missing values, remove duplicates, normalize data, and more.
+- **UI/UX:** React JS
+- **Data Handling:** Apache Spark
 - **Real-Time Updates:** Instant feedback on data modifications using WebSockets.
 
 ### Drag-and-Drop Machine Learning Model Builder
-- **User-Friendly Interface:** Drag-and-drop components to design machine learning workflows.
+- **UI/UX:** Drag-and-drop components to design machine learning workflows.
 - **Model Options:** Select from various PyTorch-based models with customizable hyperparameters.
-- **Workflow Management:** Seamlessly integrate data sources, preprocessing steps, and model configurations.
+- **Workflow Management:** Integrate data sources, preprocessing steps, and model configurations with Docker + Kubernetes
 
 ### Backend Scalability and Performance
 - **Apache Spark Integration:** Efficient large-scale data handling for preprocessing and feature engineering.
 - **PyTorch Support:** Robust deep learning capabilities with dynamic computational graphs.
 
 ## Tech Stack
-- **Frontend:** ReactJS for a dynamic and responsive user interface.
-- **Backend:** Django and Node.js for robust application logic and API handling.
-- **Real-Time Communication:** WebSockets for real-time updates and feedback.
-- **Big Data Processing:** Apache Spark for scalable data operations.
-- **Machine Learning Framework:** PyTorch for flexible and powerful model development.
+- **Frontend:** ReactJS + other CSS Libraries
+- **Backend:** Django and Node.js for application logic and API handling.
+- **Real-Time Communication:** WebSockets for real-time updates and feedback (Connected to Above)
+- **Big Data Processing:** Apache Spark for scalable data operations on large datasets.
+- **Machine Learning Framework:** PyTorch for flexible model development.
+- **VM:** AWS + Docker + Kubernetes.
 
 ## How to Run
 Write Later
