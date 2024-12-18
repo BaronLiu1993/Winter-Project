@@ -6,7 +6,7 @@ An interactive, web-based application for data cleaning and building machine lea
 
 ### Data Cleaning and Preprocessing
 - **UI/UX:** React JS
-- **Data Handling:** Apache Spark
+- **Data Handling:** Apache Spark (Training) + Apache Kafka for Realtime
 - **Real-Time Updates:** Instant feedback on data modifications using WebSockets.
 
 ### Drag-and-Drop Machine Learning Model Builder
