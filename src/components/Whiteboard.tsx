@@ -52,6 +52,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             setDragConnection(null);
             return;
         }
+        console.log(nodeId, portId, portType, position);
 
         const [sourceId, targetId] = portType === 'input' 
             ? [dragConnection.sourcePortId, portId]
@@ -60,7 +61,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         const [sourceNodeId, targetNodeId] = portType === 'input'
             ? [dragConnection.sourceNodeId, nodeId]
             : [nodeId, dragConnection.sourceNodeId];
-
+        
         setConnections(prev => [...prev, {
             id: `conn-${Date.now()}`,
             sourceNodeId,

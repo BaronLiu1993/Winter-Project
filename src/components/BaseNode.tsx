@@ -67,9 +67,13 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                     <div key={port.id} className="flex items-center">
                         <div
                             className="port w-3 h-3 rounded-full bg-blue-500 cursor-crosshair"
-                            onClick={(e) => {
+                            onMouseDown={(e) => {
                                 e.stopPropagation();
                                 onPortConnect(node.id, port.id, 'input', getPortPosition(e.currentTarget));
+                            }}
+                            onMouseUp={(e) => {
+                                e.stopPropagation();
+                                onPortConnect(node.id, port.id, 'output', getPortPosition(e.currentTarget));
                             }}
                         />
                         <span className="ml-2">{port.name}</span>
@@ -83,7 +87,11 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                         <span className="mr-2">{port.name}</span>
                         <div
                             className="port w-3 h-3 rounded-full bg-green-500 cursor-crosshair"
-                            onClick={(e) => {
+                            onMouseUp={(e) => {
+                                e.stopPropagation();
+                                onPortConnect(node.id, port.id, 'output', getPortPosition(e.currentTarget));
+                            }}
+                            onMouseDown={(e) => {
                                 e.stopPropagation();
                                 onPortConnect(node.id, port.id, 'output', getPortPosition(e.currentTarget));
                             }}
