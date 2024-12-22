@@ -10,7 +10,7 @@ export interface Port {
     type: 'input' | 'output';
     name: string;
     dataType: string;
-    connections: Connection[];
+    label: string;
 }
 
 export interface Node {
@@ -19,7 +19,6 @@ export interface Node {
     position: Position;
     inputs: Port[];
     outputs: Port[];
-    data: Record<string, unknown>;
     title: string;
 }
 
@@ -34,17 +33,8 @@ export interface Connection {
 export interface NodeTemplate {
     type: string;
     title: string;
-    inputs: Array<{
-        name: string;
-        dataType: string;
-        label: string;
-    }>;
-    outputs: Array<{
-        name: string;
-        dataType: string;
-        label: string;
-    }>;
-    defaultData?: Record<string, unknown>;
+    inputs: Array<Omit<Port, 'id' | 'type'>>;
+    outputs: Array<Omit<Port, 'id' | 'type'>>;
     component: React.ComponentType<NodeComponentProps>;
 }
 
@@ -53,7 +43,4 @@ export interface NodeComponentProps {
     onPortConnect: (nodeId: string, portId: string, portType: 'input' | 'output', position: Position) => void;
     isSelected: boolean;
     onClick: () => void;
-    onDragStart?: (nodeId: string, offset: Position) => void;
-    onDrag?: (nodeId: string, position: Position) => void;
-    onDragEnd?: (nodeId: string) => void;
 } 

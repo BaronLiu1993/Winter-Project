@@ -7,17 +7,27 @@ interface ConnectionProps {
     isTemp?: boolean;
 }
 
-export const Connection: React.FC<ConnectionProps> = ({ start, end, isTemp = false }) => {
-    const path = `M ${start.x} ${start.y} C ${start.x + 100} ${start.y}, ${end.x - 100} ${end.y}, ${end.x} ${end.y}`;
-
-    return (
+export const Connection: React.FC<ConnectionProps> = ({ start, end, isTemp }) => (
+    <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 9999 }}>
+        <defs>
+            <marker
+                id="arrowhead"
+                markerWidth="6"
+                markerHeight="4"
+                refX="5"
+                refY="2"
+                orient="auto"
+            >
+                <polygon points="0 0, 6 2, 0 4" fill="#ff0000" />
+            </marker>
+        </defs>
         <path
-            d={path}
-            stroke="#666"
-            strokeWidth="2"
+            d={`M ${start.x} ${start.y} C ${start.x + 100} ${start.y}, ${end.x - 100} ${end.y}, ${end.x} ${end.y}`}
+            stroke="#ff0000"
+            strokeWidth="5"
             fill="none"
             strokeDasharray={isTemp ? "5,5" : "none"}
             markerEnd="url(#arrowhead)"
         />
-    );
-}; 
+    </svg>
+); 

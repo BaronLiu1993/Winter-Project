@@ -1,44 +1,46 @@
-import React, { useState, MouseEvent } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { NodeComponentProps, Position } from '../types/NodeType';
 
-export const BaseNode: React.FC<NodeComponentProps> = ({ 
-    node, 
-    onPortConnect, 
-    isSelected, 
-    onClick,
-    onDragStart,
-    onDrag,
-    onDragEnd 
-}) => {
+export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, isSelected, onClick }) => {
+    const [position, setPosition] = useState(node.position);
     const [isDragging, setIsDragging] = useState(false);
+    const dragOffset = useRef<Position>({ x: 0, y: 0 });
 
-    const handleMouseDown = (e: MouseEvent) => {
-        if ((e.target as HTMLElement).classList.contains('port')) {
-            return;
-        }
-        
-        e.stopPropagation();
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).classList.contains('port')) return;
         setIsDragging(true);
-        const offset = {
-            x: e.clientX - node.position.x,
-            y: e.clientY - node.position.y
+        dragOffset.current = {
+            x: e.clientX - position.x,
+            y: e.clientY - position.y
         };
-        onDragStart?.(node.id, offset);
     };
 
-    const handleMouseUp = () => {
-        if (isDragging) {
-            setIsDragging(false);
-            onDragEnd?.(node.id);
-        }
-    };
+    useEffect(() => {
+        if (!isDragging) return;
 
-    const getPortPosition = (portElement: HTMLElement): Position => {
-        const rect = portElement.getBoundingClientRect();
-        const canvasRect = portElement.closest('.ml-48')?.getBoundingClientRect() || { left: 0, top: 0 };
+        const handleMouseMove = (e: MouseEvent) => {
+            setPosition({
+                x: e.clientX - dragOffset.current.x,
+                y: e.clientY - dragOffset.current.y
+            });
+        };
+
+        const handleMouseUp = () => setIsDragging(false);
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging]);
+
+    const getPortPosition = (el: HTMLElement): Position => {
+        const rect = el.getBoundingClientRect();
+        const canvas = el.closest('.ml-48')?.getBoundingClientRect() || { left: 0, top: 0 };
         return {
-            x: rect.left - canvasRect.left + rect.width / 2,
-            y: rect.top - canvasRect.top + rect.height / 2
+            x: rect.left - canvas.left + rect.width / 2,
+            y: rect.top - canvas.top + rect.height / 2
         };
     };
 
@@ -48,25 +50,18 @@ export const BaseNode: React.FC<NodeComponentProps> = ({
                 isSelected ? 'border-2 border-blue-500' : 'border border-gray-300'
             } bg-white cursor-move`}
             style={{
-                transform: `translate(${node.position.x}px, ${node.position.y}px)`,
+                transform: `translate(${position.x}px, ${position.y}px)`,
                 minWidth: '200px',
                 userSelect: 'none'
             }}
             onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
             onClick={(e) => {
-                if ((e.target as HTMLElement).classList.contains('port')) {
-                    return;
-                }
-                e.stopPropagation();
-                if (!isDragging) {
-                    onClick();
-                }
+                if ((e.target as HTMLElement).classList.contains('port')) return;
+                if (!isDragging) onClick();
             }}
         >
-            <div className="font-bold mb-2 node-header">{node.title}</div>
+            <div className="font-bold mb-2">{node.title}</div>
             
-            {/* Input Ports */}
             <div className="space-y-2">
                 {node.inputs.map(port => (
                     <div key={port.id} className="flex items-center">
@@ -74,8 +69,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({
                             className="port w-3 h-3 rounded-full bg-blue-500 cursor-crosshair"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                const position = getPortPosition(e.currentTarget);
-                                onPortConnect(node.id, port.id, 'input', position);
+                                onPortConnect(node.id, port.id, 'input', getPortPosition(e.currentTarget));
                             }}
                         />
                         <span className="ml-2">{port.name}</span>
@@ -83,7 +77,6 @@ export const BaseNode: React.FC<NodeComponentProps> = ({
                 ))}
             </div>
 
-            {/* Output Ports */}
             <div className="space-y-2 mt-2">
                 {node.outputs.map(port => (
                     <div key={port.id} className="flex items-center justify-end">
@@ -92,8 +85,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({
                             className="port w-3 h-3 rounded-full bg-green-500 cursor-crosshair"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                const position = getPortPosition(e.currentTarget);
-                                onPortConnect(node.id, port.id, 'output', position);
+                                onPortConnect(node.id, port.id, 'output', getPortPosition(e.currentTarget));
                             }}
                         />
                     </div>
