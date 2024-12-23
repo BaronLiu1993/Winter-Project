@@ -104,6 +104,15 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         ));
     };
 
+    const getPortPosition = (el: HTMLElement): Position => {
+        const rect = el.getBoundingClientRect();
+        const canvas = canvasRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
+        return {
+            x: rect.left - canvas.left + rect.width / 2,
+            y: rect.top - canvas.top + rect.height / 2
+        };
+    };
+
     return (
         <div className="relative w-full h-full bg-gray-100">
             <div className="absolute left-0 top-0 w-48 h-full bg-white p-4 shadow-lg">
@@ -127,24 +136,23 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                     const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
                     const targetNode = nodes.find(n => n.id === conn.targetNodeId);
                     if (!sourceNode || !targetNode) return null;
+
                     const sourcePort = sourceNode.outputs.find(p => p.id === conn.sourcePortId);
                     const targetPort = targetNode.inputs.find(p => p.id === conn.targetPortId);
                     if (!sourcePort || !targetPort) return null;
 
-                    const sourceIndex = sourceNode.outputs.indexOf(sourcePort);
-                    const targetIndex = targetNode.inputs.indexOf(targetPort);
+                    const sourceEl = document.querySelector(`[data-port-id="${conn.sourcePortId}"]`);
+                    const targetEl = document.querySelector(`[data-port-id="${conn.targetPortId}"]`);
+                    if (!sourceEl || !targetEl) return null;
+
+                    const sourcePos = getPortPosition(sourceEl as HTMLElement);
+                    const targetPos = getPortPosition(targetEl as HTMLElement);
 
                     return (
                         <ConnectionArrow
                             key={conn.id}
-                            start={{
-                                x: sourceNode.position.x + 200,  // Node width
-                                y: sourceNode.position.y + 40 + (sourceIndex * 30)  // Base offset + port spacing
-                            }}
-                            end={{
-                                x: targetNode.position.x,
-                                y: targetNode.position.y + 40 + (targetIndex * 30)
-                            }}
+                            start={sourcePos}
+                            end={targetPos}
                         />
                     );
                 })}
