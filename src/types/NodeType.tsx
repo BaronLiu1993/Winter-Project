@@ -19,6 +19,7 @@ export interface Node {
     position: Position;
     inputs: Port[];
     outputs: Port[];
+    data: Array<NodeData>;
     title: string;
 }
 
@@ -30,11 +31,18 @@ export interface Connection {
     targetPortId: string;
 }
 
+export interface NodeData {
+    name: string;   
+    dataType: string;
+    value: string;
+}
+
 export interface NodeTemplate {
     type: string;
     title: string;
     inputs: Array<Omit<Port, 'id' | 'type'>>;
     outputs: Array<Omit<Port, 'id' | 'type'>>;
+    data: Array<NodeData>;
     component: React.ComponentType<NodeComponentProps>;
 }
 

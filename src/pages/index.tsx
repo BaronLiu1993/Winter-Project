@@ -7,10 +7,16 @@ const nodeTemplates: NodeTemplate[] = [
     {
         type: 'imageLoader',
         title: 'Image Loader',
-        inputs: [],
+        inputs: [
+            { name: 'image', dataType: 'image', label: 'Input Image' }
+        ],
         outputs: [
             { name: 'image', dataType: 'image', label: 'Output Image' },
             { name: 'error', dataType: 'string', label: 'Error' }
+        ],
+        data: [
+            { name: 'image', dataType: 'text', value: '' },
+            { name: 'error', dataType: 'text', value: '' }
         ],
         component: BaseNode
     },
@@ -19,6 +25,10 @@ const nodeTemplates: NodeTemplate[] = [
         title: 'Image Processor',
         inputs: [{ name: 'input', dataType: 'image', label: 'Input Image' }],
         outputs: [{ name: 'output', dataType: 'image', label: 'Processed Image' }],
+        data: [
+            { name: 'image', dataType: 'file', value: '' },
+            { name: 'error', dataType: 'text', value: '' }
+        ],
         component: BaseNode
     },
     {
@@ -26,6 +36,9 @@ const nodeTemplates: NodeTemplate[] = [
         title: 'Image Classifier',
         inputs: [{ name: 'image', dataType: 'image', label: 'Input Image' }],
         outputs: [{ name: 'classes', dataType: 'array', label: 'Classifications' }],
+        data: [
+            { name: 'classes', dataType: 'text', value: '' }
+        ],
         component: BaseNode
     }
 ];

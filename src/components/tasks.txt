@@ -1,0 +1,15 @@
+make connection selectable and deletable
+
+give input text boxes and selectable ranges
+
+make node creater draggable instead of buttons
+
+add whiteboard tools (+, -, )
+
+
+
+
+
+add connectionr restrictions
+
+add error terminal

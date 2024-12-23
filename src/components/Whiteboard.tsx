@@ -62,7 +62,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                 dataType: output.dataType,
                 label: output.label
             })),
-            title: template.title
+            title: template.title,
+            data: template.data
         };
         setNodes(prev => [...prev, newNode]);
     };
@@ -77,6 +78,18 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             setDragConnection(null);
             return;
         }
+        if (connections.some(conn => {
+            return (
+                conn.sourcePortId === dragConnection.sourcePortId 
+                && conn.sourceNodeId === dragConnection.sourceNodeId
+                && conn.targetPortId === portId
+                && conn.targetNodeId === nodeId
+            );
+        })) {
+            setDragConnection(null);
+            return;
+        }
+        console.log("suip");
 
         const [sourceId, targetId] = portType === 'input' 
             ? [dragConnection.sourcePortId, portId]
@@ -141,8 +154,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                     const targetPort = targetNode.inputs.find(p => p.id === conn.targetPortId);
                     if (!sourcePort || !targetPort) return null;
 
-                    const sourceEl = document.querySelector(`[data-port-id="${conn.sourcePortId}"]`);
-                    const targetEl = document.querySelector(`[data-port-id="${conn.targetPortId}"]`);
+                    const sourceEl = document.querySelector(`[data-port-id="${conn.sourcePortId}"][data-port-type="output"]`);
+                    const targetEl = document.querySelector(`[data-port-id="${conn.targetPortId}"][data-port-type="input"]`);
                     if (!sourceEl || !targetEl) return null;
 
                     const sourcePos = getPortPosition(sourceEl as HTMLElement);
@@ -153,6 +166,12 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                             key={conn.id}
                             start={sourcePos}
                             end={targetPos}
+                            onDelete={() => {
+                                setConnections(prev => prev.filter(c => c.id !== conn.id));
+                            }}
+                            onAddNode={() => {
+                                console.log('Add node between connection:', conn);
+                            }}
                         />
                     );
                 })}
