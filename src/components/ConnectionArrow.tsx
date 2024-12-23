@@ -1,14 +1,21 @@
 import React from 'react';
 import { Position } from '../types/NodeType';
 
-interface ConnectionProps {
+interface ConnectionArrowProps {
     start: Position;
     end: Position;
     isTemp?: boolean;
 }
 
-export const Connection: React.FC<ConnectionProps> = ({ start, end, isTemp }) => (
-    <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 9999 }}>
+export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ start, end, isTemp }) => (
+    <svg 
+        className="absolute inset-0 w-full h-full" 
+        style={{ 
+            zIndex: 9999,
+            pointerEvents: 'none',
+            userSelect: 'none'
+        }}
+    >
         <defs>
             <marker
                 id="arrowhead"
@@ -30,4 +37,4 @@ export const Connection: React.FC<ConnectionProps> = ({ start, end, isTemp }) =>
             markerEnd="url(#arrowhead)"
         />
     </svg>
-); 
+);

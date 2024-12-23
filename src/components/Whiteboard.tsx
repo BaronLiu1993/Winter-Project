@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
-import { NodeTemplate, Node, Connection, Position } from '../types/NodeType';
+import React, { useState, useRef, useEffect } from 'react';
+import { NodeTemplate, Node, Position, Connection as ConnectionType } from '../types/NodeType';
+import { ConnectionArrow } from './ConnectionArrow';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
-    onExecute: (nodes: Node[], connections: Connection[]) => void;
+    onExecute: (nodes: Node[], connections: ConnectionType[]) => void;
 }
 
 const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => {
     const [nodes, setNodes] = useState<Node[]>([]);
-    const [connections, setConnections] = useState<Connection[]>([]);
+    const [connections, setConnections] = useState<ConnectionType[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [dragConnection, setDragConnection] = useState<{
         start: Position;
@@ -17,21 +18,45 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         sourceType: 'input' | 'output';
     } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
+    const [cursorPosition, setCursorPosition] = useState<Position>({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (canvasRef.current) {
+                const rect = canvasRef.current.getBoundingClientRect();
+                setCursorPosition({
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                });
+            }
+        };  
+
+        const handleMouseUp = (e: MouseEvent) => {
+            setTimeout(() => setDragConnection(null), 100);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, []);
 
     const handleAddNode = (template: NodeTemplate) => {
         const newNode: Node = {
-            id: `node-${Date.now()}`,
+            id: `node-${nodes.length + 1}`,
             type: template.type,
             position: { x: 200, y: 100 },
             inputs: template.inputs.map(input => ({
-                id: `${input.name}-${Date.now()}`,
+                id: `${input.name}-${nodes.length + 1}`,
                 type: 'input' as const,
                 name: input.name,
                 dataType: input.dataType,
                 label: input.label
             })),
             outputs: template.outputs.map(output => ({
-                id: `${output.name}-${Date.now()}`,
+                id: `${output.name}-${nodes.length + 1}`,
                 type: 'output' as const,
                 name: output.name,
                 dataType: output.dataType,
@@ -52,7 +77,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             setDragConnection(null);
             return;
         }
-        console.log(nodeId, portId, portType, position);
 
         const [sourceId, targetId] = portType === 'input' 
             ? [dragConnection.sourcePortId, portId]
@@ -63,13 +87,21 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             : [nodeId, dragConnection.sourceNodeId];
         
         setConnections(prev => [...prev, {
-            id: `conn-${Date.now()}`,
+            id: `conn-${connections.length + 1}`,
             sourceNodeId,
             sourcePortId: sourceId,
             targetNodeId,
             targetPortId: targetId
         }]);
         setDragConnection(null);
+    };
+
+    const updateNodePosition = (nodeId: string, newPosition: Position) => {
+        setNodes(prev => prev.map(node => 
+            node.id === nodeId 
+                ? { ...node, position: newPosition }
+                : node
+        ));
     };
 
     return (
@@ -91,6 +123,40 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                 className="ml-48 h-full relative overflow-hidden"
                 onClick={() => setSelectedNodeId(null)}
             >
+                {connections.map(conn => {
+                    const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
+                    const targetNode = nodes.find(n => n.id === conn.targetNodeId);
+                    if (!sourceNode || !targetNode) return null;
+                    const sourcePort = sourceNode.outputs.find(p => p.id === conn.sourcePortId);
+                    const targetPort = targetNode.inputs.find(p => p.id === conn.targetPortId);
+                    if (!sourcePort || !targetPort) return null;
+
+                    const sourceIndex = sourceNode.outputs.indexOf(sourcePort);
+                    const targetIndex = targetNode.inputs.indexOf(targetPort);
+
+                    return (
+                        <ConnectionArrow
+                            key={conn.id}
+                            start={{
+                                x: sourceNode.position.x + 200,  // Node width
+                                y: sourceNode.position.y + 40 + (sourceIndex * 30)  // Base offset + port spacing
+                            }}
+                            end={{
+                                x: targetNode.position.x,
+                                y: targetNode.position.y + 40 + (targetIndex * 30)
+                            }}
+                        />
+                    );
+                })}
+
+                {dragConnection && (
+                    <ConnectionArrow
+                        start={dragConnection.start}
+                        end={cursorPosition}
+                        isTemp={true}
+                    />
+                )}
+
                 {nodes.map(node => {
                     const Template = nodeTemplates.find(t => t.type === node.type)?.component;
                     return Template ? (

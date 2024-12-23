@@ -15,18 +15,20 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
         };
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!isDragging) return;
+        const newPosition = {
+            x: e.clientX - dragOffset.current.x,
+            y: e.clientY - dragOffset.current.y
+        };
+        setPosition(newPosition);
+        node.position = newPosition;
+    };
+
+    const handleMouseUp = () => setIsDragging(false);
+
     useEffect(() => {
         if (!isDragging) return;
-
-        const handleMouseMove = (e: MouseEvent) => {
-            setPosition({
-                x: e.clientX - dragOffset.current.x,
-                y: e.clientY - dragOffset.current.y
-            });
-        };
-
-        const handleMouseUp = () => setIsDragging(false);
-
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
         return () => {
@@ -38,6 +40,8 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
     const getPortPosition = (el: HTMLElement): Position => {
         const rect = el.getBoundingClientRect();
         const canvas = el.closest('.ml-48')?.getBoundingClientRect() || { left: 0, top: 0 };
+        const nodeRect = el.closest('.node')?.getBoundingClientRect() || rect;
+        
         return {
             x: rect.left - canvas.left + rect.width / 2,
             y: rect.top - canvas.top + rect.height / 2
@@ -73,7 +77,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                             }}
                             onMouseUp={(e) => {
                                 e.stopPropagation();
-                                onPortConnect(node.id, port.id, 'output', getPortPosition(e.currentTarget));
+                                onPortConnect(node.id, port.id, 'input', getPortPosition(e.currentTarget));
                             }}
                         />
                         <span className="ml-2">{port.name}</span>
