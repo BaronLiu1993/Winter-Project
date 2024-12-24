@@ -181,7 +181,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             <div id="view_window" className="fixed w-full h-full overflow-hidden">
                 <div 
                     ref={canvasRef}
-                    className="relative bg-blue-100"
+                    className="relative"
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
@@ -189,11 +189,14 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                     onClick={() => setSelectedNodeId(null)}
                     style={{
                         transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,
-                        width: `${boardSize}px`,
+                        width: `${boardSize.width}px`,
                         left: "192px",
-                        height: `${boardSize}px`,
+                        height: `${boardSize.height}px`,
                         cursor: isDragging ? 'grabbing' : 'grab',
-                        transformOrigin: '0 0'
+                        transformOrigin: '0 0',
+                        backgroundColor: 'white',
+                        backgroundImage: 'radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0)',
+                        backgroundSize: '40px 40px'
                     }}
                 >
                     {connections.map(conn => {

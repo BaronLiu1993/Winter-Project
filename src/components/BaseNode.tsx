@@ -30,7 +30,6 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                    .forEach(connection => {
                         const element = document.getElementById(connection.id);
                         if (element) {
-                            console.log("GlobalZIndex", GlobalZIndex);
                             element.style.zIndex = (1001).toString();
                         }
                     });
@@ -66,13 +65,13 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
 
         if(newPosition.x < 0){
             newPosition.x = 0;
-        } else if(newPosition.x + (document.getElementById(node.id)?.offsetWidth || 0) > boardSize){
-            newPosition.x = boardSize - (document.getElementById(node.id)?.offsetWidth || 0);
-        }
+        } else if(newPosition.x + (document.getElementById(node.id)?.offsetWidth || 0) > boardSize.width){
+            newPosition.x = boardSize.width - (document.getElementById(node.id)?.offsetWidth || 0);
+        }   
         if(newPosition.y < 0){
             newPosition.y = 0;
-        } else if(newPosition.y + (document.getElementById(node.id)?.offsetHeight || 0) > boardSize){
-            newPosition.y = boardSize - (document.getElementById(node.id)?.offsetHeight || 0);
+        } else if(newPosition.y + (document.getElementById(node.id)?.offsetHeight || 0) > boardSize.height){
+            newPosition.y = boardSize.height - (document.getElementById(node.id)?.offsetHeight || 0);
         }
 
         setPosition(newPosition);
@@ -272,7 +271,6 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                                         placeholder={`Enter ${data.name}...`}
                                         onChange={(e) => {
                                             data.value = e.target.value;
-                                            console.log("data", data);
                                         }}
                                     />
                                 </div>
