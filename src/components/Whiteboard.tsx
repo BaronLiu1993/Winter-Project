@@ -11,6 +11,7 @@ interface WhiteboardProps {
 }
 
 const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => {
+    const BOARDSIZE = 1000;
     const [nodes, setNodes] = useState<Node[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [dragConnection, setDragConnection] = useState<{
@@ -21,7 +22,10 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
     } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
     const [cursorPosition, setCursorPosition] = useState<Position>({ x: 0, y: 0 });
-
+    const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStart = useRef({ x: 0, y: 0 });
+    const [scale, setScale] = useState(1);
     const { connections, setConnections } = useConnections();
 
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
@@ -41,11 +45,21 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             setTimeout(() => setDragConnection(null), 100);
         };
 
+        const handleWheel = (e: WheelEvent) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                setScale(prev => Math.min(Math.max(0.5, prev * delta), 2));
+            }
+        };
+
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('wheel', handleWheel, { passive: false });
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('wheel', handleWheel);
         };
     }, []);
 
@@ -143,18 +157,53 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         setNodes(prev => prev.filter(n => n.id !== nodeId));
     };
 
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (e.target === canvasRef.current) {
+            setIsDragging(true);
+            dragStart.current = {
+                x: e.clientX - dragPosition.x,
+                y: e.clientY - dragPosition.y
+            };
+        }
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (isDragging) {
+            setDragPosition({
+                x: e.clientX - dragStart.current.x,
+                y: e.clientY - dragStart.current.y
+            });
+        }
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
+
+
+
     return (
-        <div className="relative w-full h-full bg-gray-100 whiteboard">
+        <div className="fixed w-full h-full bg-gray-100 whiteboard">
             <Sidebar 
                 nodeTemplates={nodeTemplates} 
                 onAddNode={handleAddNode} 
             />
-
-            <div 
-                ref={canvasRef}
-                className="h-full relative overflow-hidden"
-                onClick={() => setSelectedNodeId(null)}
-            >
+            <div className="fixed w-full h-full overflow-hidden">
+                <div 
+                    ref={canvasRef}
+                    className="relative bg-blue-100"
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    onClick={() => setSelectedNodeId(null)}
+                    style={{
+                        transform: `translate(${dragPosition.x}px, ${dragPosition.y}px) scale(${scale})`,
+                        width: `${BOARDSIZE}px`,
+                        height: `${BOARDSIZE}px`,
+                        cursor: isDragging ? 'grabbing' : 'grab'
+                    }}
+                >
                 {connections.map(conn => {
                     const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
                     const targetNode = nodes.find(n => n.id === conn.targetNodeId);
@@ -222,6 +271,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             >
                 Execute Pipeline
             </button>
+        </div>
         </div>
     );
 };
