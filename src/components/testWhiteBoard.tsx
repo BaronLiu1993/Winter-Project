@@ -228,29 +228,38 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
             nodeTemplates={nodeTemplates}
             onAddNode={handleAddNode}
         />
-        <div id="view_window" style={{
+        {/* <div id="view_window" style={{
             height: "100vh",
             width: "80vw", 
             marginBottom: "auto",
             marginLeft: "auto",
-        }}>
+        }}> */}
             <div
+                id="view_window"
                 ref={containerRef}
-                className="w-full h-96 bg-blue-200 overflow-hidden cursor-grab"
+                className="w-full h-96 overflow-hidden cursor-grab"
                 onWheel={handleWheel}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 style={{
                     touchAction: 'none',
-                    transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-                    transformOrigin: '0 0',
-                    backfaceVisibility: 'hidden',
-                    WebkitFontSmoothing: 'subpixel-antialiased',
-                    imageRendering: 'pixelated',
-                    width: `${BOARDSIZE}px`,
-                    height: `${BOARDSIZE}px`,
+                    height: "100vh",
+                    width: "auto",
                 }}
             >
+                <div
+                    id="board"
+                    className="absolute bg-blue-200"
+                    style={{
+                        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                        transformOrigin: '0 0',
+                        backfaceVisibility: 'hidden',
+                        WebkitFontSmoothing: 'subpixel-antialiased',
+                        imageRendering: 'pixelated',
+                        width: `${BOARDSIZE}px`,
+                        height: `${BOARDSIZE}px`,
+                    }}
+                >
                 {nodes.map(node => {
                     const Template = nodeTemplates.find(t => t.type === node.type)?.component;
                     return Template ? (
@@ -318,6 +327,7 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
                     Execute Pipeline
                 </button>
         </div>
+        {/* </div> */}
     </div>
   );
 };
