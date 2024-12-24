@@ -186,14 +186,7 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
     setNodes(prev => [...prev, newNode]);
     };
 
-    const getPortPosition = (el: HTMLElement): Position => {
-        const rect = el.getBoundingClientRect();
-        const canvas = canvasRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
-        return {
-            x: rect.left - canvas.left + rect.width / 2,
-            y: rect.top - canvas.top + rect.height / 2
-        };
-    };
+    
     {/* CONNECTION FUNCTIONALITY ====================================
     ===============================================================
     ===============================================================
@@ -220,7 +213,29 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [scale, dragPosition]);
+    }, [transform]);
+
+    useEffect(() => {
+        const forceUpdate = setTimeout(() => {
+            setConnections(prev => [...prev]);
+        }, 0);
+
+        return () => clearTimeout(forceUpdate);
+    }, [transform, setConnections]);
+
+    const getPortPosition = (el: HTMLElement): Position => {
+        const rect = el.getBoundingClientRect();
+        const viewWindow = document.getElementById('view_window');
+        if (!viewWindow) return { x: 0, y: 0 };
+        
+        const viewRect = viewWindow.getBoundingClientRect();
+        
+        // Get position relative to view window and account for transform
+        return {
+            x: (rect.left - viewRect.left - transform.x) / transform.scale + rect.width / 2,
+            y: (rect.top - viewRect.top - transform.y) / transform.scale + rect.height / 2
+        };
+    };
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg">

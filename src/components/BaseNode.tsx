@@ -105,16 +105,31 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging]);
+    }, [isDragging, setConnections]);
 
     const getPortPosition = (el: HTMLElement): Position => {
         const rect = el.getBoundingClientRect();
-        const canvas = el.closest('.ml-48')?.getBoundingClientRect() || { left: 0, top: 0 };
-        const nodeRect = el.closest('.node')?.getBoundingClientRect() || rect;
+        const viewWindow = document.getElementById('view_window');
+        const board = document.getElementById('board');
+        if (!viewWindow || !board) return { x: 0, y: 0 };
         
+        const boardRect = board.getBoundingClientRect();
+        
+        // Get the current transform values from the board
+        const transform = board.style.transform;
+        const matches = transform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)\s*scale\(([-\d.]+)\)/);
+        if (!matches) return { x: 0, y: 0 };
+        
+        const [_, translateX, translateY, scale] = matches.map(Number);
+        
+        // Calculate position in unscaled board space
+        const x = (rect.left - boardRect.left) / scale;
+        const y = (rect.top - boardRect.top) / scale;
+        
+        // Return position in board's coordinate system
         return {
-            x: rect.left - canvas.left + rect.width / 2,
-            y: rect.top - canvas.top + rect.height / 2
+            x: x,
+            y: y
         };
     };
 
