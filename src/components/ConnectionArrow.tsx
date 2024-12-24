@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Position } from '../types/NodeType';
 
 interface ConnectionArrowProps {
@@ -18,6 +18,10 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ start, end, is
     const rightOrient = start.x < end.x;
     const startControl = rightOrient ? start.x + 100 : start.x - 100;
     const endControl = rightOrient ? end.x - 100 : end.x + 100;
+
+    useEffect(() => {
+        console.log('ConnectionArrow rendered');
+    }, [rightOrient]);
 
     return (
         <svg 
