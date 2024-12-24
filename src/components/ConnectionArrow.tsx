@@ -24,6 +24,17 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end
         let _ = rightOrient; // used to re render the arrowhead
     }, [rightOrient]);
 
+
+    useEffect(() => {
+        if (showMenu) {
+            document.addEventListener('click', (e) => {
+                if (e.target !== document.querySelector('.context-menu')) {
+                    setShowMenu(false);
+                }
+            });
+        }
+    }, [showMenu]);
+
     return (
         <svg 
             id={id}
@@ -94,7 +105,10 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end
                             y={midY + 10}
                             width="100"
                             height="80"
-                            style={{ pointerEvents: 'all' }}
+                            style={{ pointerEvents: 'all',
+                                position: 'fixed',
+                                zIndex: 99999
+                            }}
                         >
                             <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-2">
                                 <button

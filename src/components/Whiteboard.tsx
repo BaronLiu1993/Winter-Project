@@ -51,18 +51,18 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
 
     const handleAddNode = (template: NodeTemplate) => {
         const newNode: Node = {
-            id: `node-${nodes.length + 1}`,
+            id: `node-${Date.now()}`,
             type: template.type,
             position: { x: 200, y: 100 },
             inputs: template.inputs.map(input => ({
-                id: `${input.name}-${nodes.length + 1}`,
+                id: `${input.name}-${Date.now()}`,
                 type: 'input' as const,
                 name: input.name,
                 dataType: input.dataType,
                 label: input.label
             })),
             outputs: template.outputs.map(output => ({
-                id: `${output.name}-${nodes.length + 1}`,
+                id: `${output.name}-${Date.now()}`,
                 type: 'output' as const,
                 name: output.name,
                 dataType: output.dataType,
@@ -144,7 +144,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
     };
 
     return (
-        <div className="relative w-full h-full bg-gray-100">
+        <div className="relative w-full h-full bg-gray-100 whiteboard">
             <Sidebar 
                 nodeTemplates={nodeTemplates} 
                 onAddNode={handleAddNode} 
@@ -173,6 +173,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
 
                     return (
                         <ConnectionArrow
+                            key={conn.id}
                             id={conn.id}
                             start={sourcePos}
                             end={targetPos}
@@ -182,14 +183,15 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                             onAddNode={() => {
                                 console.log('Add node between connection:', conn);
                             }}
-                        startColor="#22c55e"
-                        endColor="#3b82f6"
+                            startColor="#22c55e"
+                            endColor="#3b82f6"
                         />
                     );
                 })}
 
                 {dragConnection && (
                     <ConnectionArrow
+                        key="temp-connection"
                         id="-1"
                         start={dragConnection.sourceType === 'output' ? dragConnection.start : cursorPosition}
                         end={dragConnection.sourceType === 'output' ? cursorPosition : dragConnection.start}

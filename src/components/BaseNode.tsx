@@ -12,6 +12,8 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
 
     const { connections, setConnections } = useConnections();
 
+    const [showContextMenu, setShowContextMenu] = useState<{ x: number; y: number } | null>(null);
+
     const handleMouseDown = (e: React.MouseEvent) => {
         if ((e.target as HTMLElement).classList.contains('port')) return;
         setIsDragging(true);
@@ -116,6 +118,31 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
         };
     };
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const nodeRect = e.currentTarget.getBoundingClientRect();
+        
+        setShowContextMenu({ 
+            x: e.clientX - nodeRect.left,
+            y: e.clientY - nodeRect.top
+        });
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            // Get the context menu element
+            const contextMenu = document.querySelector('.context-menu');
+            
+            // Check if click target is outside the context menu
+            if (showContextMenu && contextMenu && !contextMenu.contains(e.target as Node)) {
+                setShowContextMenu(null);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [showContextMenu]);
+
     return (
         <div
             id={node.id.toString()}
@@ -140,6 +167,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                 if ((e.target as HTMLElement).classList.contains('port')) return;
                 if (!isDragging) onClick();
             }}
+            onContextMenu={handleContextMenu}
         >
             {/* Title Section */}
             <div className="font-semibold text-lg text-gray-700 mb-4 pb-3 border-b border-gray-100">
@@ -293,6 +321,54 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
 
                         return null;
                     })}
+                </div>
+            )}
+
+            {showContextMenu && (
+                <div 
+                    className="absolute bg-white rounded-lg shadow-xl border border-gray-200 py-2 w-48 context-menu"
+                    style={{ 
+                        left: showContextMenu.x, 
+                        top: showContextMenu.y,
+                        zIndex: 9999
+                    }}
+                >
+                    <button
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600"
+                        onClick={() => {
+                            handleDelete();
+                            setShowContextMenu(null);
+                        }}
+                    >
+                        Delete Node
+                    </button>
+                    <button
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                            console.log("Action 1");
+                            setShowContextMenu(null);
+                        }}
+                    >
+                        Action 1
+                    </button>
+                    <button
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                            console.log("Action 2");
+                            setShowContextMenu(null);
+                        }}
+                    >
+                        Action 2
+                    </button>
+                    <button
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                        onClick={() => {
+                            console.log("Action 3");
+                            setShowContextMenu(null);
+                        }}
+                    >
+                        Action 3
+                    </button>
                 </div>
             )}
         </div>
