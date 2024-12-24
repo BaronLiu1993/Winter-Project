@@ -5,36 +5,35 @@ import Whiteboard from '../components/Whiteboard';
 
 const nodeTemplates: NodeTemplate[] = [
     {
-        type: 'imageLoader',
-        title: 'Image Loader',
+        type: 'inputManager',
+        title: 'Input Manager',
         inputs: [
-            { name: 'image', dataType: 'image', label: 'Input Image' }
+            { name: 'input text', dataType: 'text', label: 'Input Text' }
         ],
         outputs: [
-            { name: 'image', dataType: 'image', label: 'Output Image' },
-            { name: 'error', dataType: 'string', label: 'Error' }
+            { name: 'output', dataType: 'text', label: 'Output' },
+            { name: 'output number', dataType: 'text', label: 'Output Number' }
         ],
         data: [
-            { name: 'image', dataType: 'text', value: '' },
-            { name: 'error', dataType: 'text', value: '' }
+            { name: 'text', dataType: 'text', value: '' },
+            { name: 'csv file', dataType: 'file', value: '' }
         ],
         component: BaseNode
     },
     {
-        type: 'imageProcessor',
-        title: 'Image Processor',
-        inputs: [{ name: 'input', dataType: 'image', label: 'Input Image' }],
-        outputs: [{ name: 'output', dataType: 'image', label: 'Processed Image' }],
+        type: 'textProcessor',
+        title: 'Text Processor',
+        inputs: [{ name: 'input', dataType: 'text', label: 'Input Text' }],
+        outputs: [{ name: 'output', dataType: 'text', label: 'Processed Text' }],
         data: [
-            { name: 'image', dataType: 'file', value: '' },
-            { name: 'error', dataType: 'text', value: '' }
+            { name: 'text', dataType: 'text', value: '' },
         ],
         component: BaseNode
     },
     {
-        type: 'imageClassifier',
-        title: 'Image Classifier',
-        inputs: [{ name: 'image', dataType: 'image', label: 'Input Image' }],
+        type: 'dataClassifier',
+        title: 'Data Classifier',
+        inputs: [{ name: 'data', dataType: 'data', label: 'Input Data' }],
         outputs: [{ name: 'classes', dataType: 'array', label: 'Classifications' }],
         data: [
             { name: 'classes', dataType: 'text', value: '' }

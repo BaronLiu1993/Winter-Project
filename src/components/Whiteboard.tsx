@@ -172,6 +172,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                             onAddNode={() => {
                                 console.log('Add node between connection:', conn);
                             }}
+                        startColor="#22c55e"
+                        endColor="#3b82f6"
                         />
                     );
                 })}
@@ -181,6 +183,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                         start={dragConnection.start}
                         end={cursorPosition}
                         isTemp={true}
+                        startColor="#22c55e"
+                        endColor="#3b82f6"
                     />
                 )}
 

@@ -13,3 +13,5 @@ add whiteboard tools (+, -, )
 add connectionr restrictions
 
 add error terminal
+
+add different colors for connections that cnatconnect with each other
