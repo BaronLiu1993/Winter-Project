@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { NodeComponentProps, Position } from '../types/NodeType';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { useConnections } from '../contexts/ConnectionContext';
+import { useBoardSize } from '../contexts/BoardSizeContext';
 
 export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, isSelected, onClick, handleDelete }) => {
     const [position, setPosition] = useState(node.position);
@@ -9,7 +10,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
     const dragOffset = useRef<Position>({ x: 0, y: 0 });
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();
     const [zIndex, setZIndex] = useState(GlobalZIndex);
-
+    const { boardSize } = useBoardSize();
     const { connections, setConnections } = useConnections();
 
     const [showContextMenu, setShowContextMenu] = useState<{ x: number; y: number } | null>(null);
@@ -63,12 +64,25 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
             }
         }
 
+        if(newPosition.x < 0){
+            newPosition.x = 0;
+        } else if(newPosition.x + (document.getElementById(node.id)?.offsetWidth || 0) > boardSize){
+            newPosition.x = boardSize - (document.getElementById(node.id)?.offsetWidth || 0);
+        }
+        if(newPosition.y < 0){
+            newPosition.y = 0;
+        } else if(newPosition.y + (document.getElementById(node.id)?.offsetHeight || 0) > boardSize){
+            newPosition.y = boardSize - (document.getElementById(node.id)?.offsetHeight || 0);
+        }
+
         setPosition(newPosition);
         node.position = newPosition;
     };
 
     const handleMouseUp = (e: MouseEvent) => {
         setZIndex(GlobalZIndex);
+
+        
 
         connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
                    .forEach(connection => {

@@ -4,6 +4,7 @@ import { ConnectionArrow } from './ConnectionArrow';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { Sidebar } from './Sidebar';
+import { useBoardSize } from '../contexts/BoardSizeContext';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -11,11 +12,10 @@ interface WhiteboardProps {
 }
 
 const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => {
-    const BOARDSIZE = 1000;
+    const { boardSize } = useBoardSize();
     const [nodes, setNodes] = useState<Node[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-    const [dragConnection, setDragConnection] = useState<{
-        start: Position;
+    const [dragConnectionInfo, setDragConnectionInfo] = useState<{
         sourceNodeId: string;
         sourcePortId: string;
         sourceType: 'input' | 'output';
@@ -40,7 +40,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         };  
 
         const handleMouseUp = (e: MouseEvent) => {
-            setTimeout(() => setDragConnection(null), 100);
+            setTimeout(() => setDragConnectionInfo(null), 100);
         };
 
         document.addEventListener('mousemove', handleMouseMove);
@@ -49,7 +49,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [scale, dragPosition]); // Added dependencies for the zoom calculation
+    }, [dragPosition]); // Added dependencies for the zoom calculation
 
     // Rest of your existing code remains unchanged...
     const handleAddNode = (template: NodeTemplate) => {
@@ -78,34 +78,38 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
     };
 
     const handlePortConnect = (nodeId: string, portId: string, portType: 'input' | 'output', position: Position) => {
-        if (!dragConnection) {
-            setDragConnection({ start: position, sourceNodeId: nodeId, sourcePortId: portId, sourceType: portType });
+        if (!dragConnectionInfo) {
+            setDragConnectionInfo({ 
+                sourceNodeId: nodeId, 
+                sourcePortId: portId, 
+                sourceType: portType 
+            });
             return;
         }
 
-        if (portType === dragConnection.sourceType || nodeId === dragConnection.sourceNodeId) {
-            setDragConnection(null);
+        if (portType === dragConnectionInfo.sourceType || nodeId === dragConnectionInfo.sourceNodeId) {
+            setDragConnectionInfo(null);
             return;
         }
         if (connections.some(conn => {
             return (
-                conn.sourcePortId === dragConnection.sourcePortId 
-                && conn.sourceNodeId === dragConnection.sourceNodeId
+                conn.sourcePortId === dragConnectionInfo.sourcePortId 
+                && conn.sourceNodeId === dragConnectionInfo.sourceNodeId
                 && conn.targetPortId === portId 
                 && conn.targetNodeId === nodeId
             );
         })) {
-            setDragConnection(null);
+            setDragConnectionInfo(null);
             return;
         }
 
         const [sourceId, targetId] = portType === 'input' 
-            ? [dragConnection.sourcePortId, portId]
-            : [portId, dragConnection.sourcePortId];
+            ? [dragConnectionInfo.sourcePortId, portId]
+            : [portId, dragConnectionInfo.sourcePortId];
 
         const [sourceNodeId, targetNodeId] = portType === 'input'
-            ? [dragConnection.sourceNodeId, nodeId]
-            : [nodeId, dragConnection.sourceNodeId];
+            ? [dragConnectionInfo.sourceNodeId, nodeId]
+            : [nodeId, dragConnectionInfo.sourceNodeId];
         
         setConnections(prev => [...prev, {
             id: `conn-${connections.length + 1}`,
@@ -121,7 +125,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             }
             setGlobalZIndex(GlobalZIndex + 2);
         }, 10);
-        setDragConnection(null);
+        setDragConnectionInfo(null);
     };
 
     const updateNodePosition = (nodeId: string, newPosition: Position) => {
@@ -185,9 +189,9 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                     onClick={() => setSelectedNodeId(null)}
                     style={{
                         transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,
-                        width: `${BOARDSIZE}px`,
+                        width: `${boardSize}px`,
                         left: "192px",
-                        height: `${BOARDSIZE}px`,
+                        height: `${boardSize}px`,
                         cursor: isDragging ? 'grabbing' : 'grab',
                         transformOrigin: '0 0'
                     }}
@@ -226,12 +230,17 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                         );
                     })}
 
-                    {dragConnection && (
+                    {dragConnectionInfo && (
                         <ConnectionArrow
                             key="temp-connection"
                             id="-1"
-                            start={dragConnection.sourceType === 'output' ? dragConnection.start : cursorPosition}
-                            end={dragConnection.sourceType === 'output' ? cursorPosition : dragConnection.start}
+                            start={(() => {
+                                const sourceEl = document.querySelector(
+                                    `[data-port-id="${dragConnectionInfo.sourcePortId}"][data-port-type="${dragConnectionInfo.sourceType}"]`
+                                );
+                                return sourceEl ? getPortPosition(sourceEl as HTMLElement) : { x: 0, y: 0 };
+                            })()}
+                            end={cursorPosition}
                             isTemp={true}
                             startColor="#22c55e"
                             endColor="#3b82f6"
