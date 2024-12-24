@@ -51,6 +51,53 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         };
     }, [dragPosition]); // Added dependencies for the zoom calculation
 
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            const whiteboard = document.getElementById('view_window');
+            if (!whiteboard) return;
+            
+            const bounds = whiteboard.getBoundingClientRect();
+            const isOverWhiteboard = (
+                e.clientX >= bounds.left &&
+                e.clientX <= bounds.right &&
+                e.clientY >= bounds.top &&
+                e.clientY <= bounds.bottom
+            );
+
+            if (isOverWhiteboard) {
+                e.preventDefault();
+                
+                let newX = dragPosition.x;
+                let newY = dragPosition.y;
+                
+                if (e.shiftKey) {
+                    newX = dragPosition.x - e.deltaY;
+                } else {
+                    newY = dragPosition.y - e.deltaY;
+                }
+
+                // Add padding to bounds (200px on each side)
+                const PADDING = 200;
+                const minX = -(boardSize.width - bounds.width + 192 + PADDING);
+                const maxX = PADDING;
+                const minY = -(boardSize.height - bounds.height + PADDING);
+                const maxY = PADDING;
+
+                // Clamp the values
+                newX = Math.min(Math.max(newX, minX), maxX);
+                newY = Math.min(Math.max(newY, minY), maxY);
+
+                setDragPosition({
+                    x: newX,
+                    y: newY
+                });
+            }
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        return () => window.removeEventListener('wheel', handleWheel);
+    }, [dragPosition, boardSize]); // Add dependencies
+
     // Rest of your existing code remains unchanged...
     const handleAddNode = (template: NodeTemplate) => {
         const newNode: Node = {
