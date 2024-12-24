@@ -180,8 +180,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
 
                 {dragConnection && (
                     <ConnectionArrow
-                        start={dragConnection.start}
-                        end={cursorPosition}
+                        start={dragConnection.sourceType === 'output' ? dragConnection.start : cursorPosition}
+                        end={dragConnection.sourceType === 'output' ? cursorPosition : dragConnection.start}
                         isTemp={true}
                         startColor="#22c55e"
                         endColor="#3b82f6"
