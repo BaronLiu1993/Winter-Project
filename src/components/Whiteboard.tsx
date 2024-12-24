@@ -188,7 +188,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                 nodeTemplates={nodeTemplates} 
                 onAddNode={handleAddNode} 
             />
-            <div className="fixed w-full h-full overflow-hidden">
+            <div id="view_window"className="fixed w-full h-full overflow-hidden">
                 <div 
                     ref={canvasRef}
                     className="relative bg-blue-100"

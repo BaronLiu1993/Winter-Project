@@ -253,11 +253,11 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                                         className="w-full p-3 border border-gray-200 rounded-lg text-sm resize-none
                                                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                                  transition-all duration-200"
-                                        value={data.value}
                                         rows={3}
                                         placeholder={`Enter ${data.name}...`}
                                         onChange={(e) => {
                                             data.value = e.target.value;
+                                            console.log("data", data);
                                         }}
                                     />
                                 </div>
