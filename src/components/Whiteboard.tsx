@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NodeTemplate, Node, Position, Connection as ConnectionType } from '../types/NodeType';
 import { ConnectionArrow } from './ConnectionArrow';
+import { useConnections } from '../contexts/ConnectionContext';
+import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -9,7 +11,6 @@ interface WhiteboardProps {
 
 const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => {
     const [nodes, setNodes] = useState<Node[]>([]);
-    const [connections, setConnections] = useState<ConnectionType[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [dragConnection, setDragConnection] = useState<{
         start: Position;
@@ -19,6 +20,10 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
     } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
     const [cursorPosition, setCursorPosition] = useState<Position>({ x: 0, y: 0 });
+
+    const { connections, setConnections } = useConnections();
+
+    const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -106,6 +111,14 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             targetNodeId,
             targetPortId: targetId
         }]);
+        setTimeout(() => {
+            const connectionElement = document.getElementById(`conn-${connections.length + 1}`);
+            if (connectionElement) {
+                console.log("GlobalZIndex", GlobalZIndex);
+                connectionElement.style.zIndex = (GlobalZIndex + 2).toString();
+            }
+            setGlobalZIndex(GlobalZIndex + 1);
+        }, 10);
         setDragConnection(null);
     };
 
@@ -163,7 +176,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
 
                     return (
                         <ConnectionArrow
-                            key={conn.id}
+                            id={conn.id}
                             start={sourcePos}
                             end={targetPos}
                             onDelete={() => {
@@ -180,6 +193,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
 
                 {dragConnection && (
                     <ConnectionArrow
+                        id="-1"
                         start={dragConnection.sourceType === 'output' ? dragConnection.start : cursorPosition}
                         end={dragConnection.sourceType === 'output' ? cursorPosition : dragConnection.start}
                         isTemp={true}

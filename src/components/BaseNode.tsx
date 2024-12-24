@@ -1,18 +1,36 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NodeComponentProps, Position } from '../types/NodeType';
+import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
+import { useConnections } from '../contexts/ConnectionContext';
 
 export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, isSelected, onClick }) => {
     const [position, setPosition] = useState(node.position);
     const [isDragging, setIsDragging] = useState(false);
     const dragOffset = useRef<Position>({ x: 0, y: 0 });
+    const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();
+    const [zIndex, setZIndex] = useState(GlobalZIndex);
+
+    const { connections, setConnections } = useConnections();
 
     const handleMouseDown = (e: React.MouseEvent) => {
         if ((e.target as HTMLElement).classList.contains('port')) return;
         setIsDragging(true);
+
         dragOffset.current = {
             x: e.clientX - position.x,
             y: e.clientY - position.y
         };
+
+        setGlobalZIndex(GlobalZIndex + 1);
+        setZIndex(GlobalZIndex + 1);
+
+        connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
+                   .forEach(connection => {
+                        const element = document.getElementById(connection.id);
+                        if (element) {
+                            element.style.zIndex = (GlobalZIndex + 2).toString();
+                        }
+                    });
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -25,8 +43,9 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
         node.position = newPosition;
     };
 
-    const handleMouseUp = () => setIsDragging(false);
-
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
     useEffect(() => {
         if (!isDragging) return;
         document.addEventListener('mousemove', handleMouseMove);
@@ -63,6 +82,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                 transform: `translate(${position.x}px, ${position.y}px)`,
                 minWidth: '280px',
                 userSelect: 'none',
+                zIndex: zIndex,
                 transition: 'background-color 200ms ease-in-out, box-shadow 200ms ease-in-out, border-color 200ms ease-in-out'
             }}
             onMouseDown={handleMouseDown}

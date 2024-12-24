@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Position } from '../types/NodeType';
 
 interface ConnectionArrowProps {
+    id: string;
     start: Position;
     end: Position;
     isTemp?: boolean;
@@ -11,7 +12,7 @@ interface ConnectionArrowProps {
     onAddNode?: () => void;
 }
 
-export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ start, end, isTemp, startColor, endColor, onDelete, onAddNode }) => {
+export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end, isTemp, startColor, endColor, onDelete, onAddNode }) => {
     const [showMenu, setShowMenu] = useState(false);
     const midX = (start.x + end.x) / 2;
     const midY = (start.y + end.y) / 2;
@@ -26,7 +27,7 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ start, end, is
     return (
         <svg 
             className="absolute inset-0 w-full h-full" 
-            style={{ zIndex: 9999, pointerEvents: 'none', userSelect: 'none' }}
+            style={{ zIndex: id === "-1" ? 9999 : 1, pointerEvents: 'none', userSelect: 'none' }}
         >
             <defs>
                 <linearGradient 
