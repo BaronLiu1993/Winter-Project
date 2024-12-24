@@ -25,7 +25,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
     const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const dragStart = useRef({ x: 0, y: 0 });
-    const [scale, setScale] = useState(1);
     const { connections, setConnections } = useConnections();
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
 
@@ -44,50 +43,11 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
             setTimeout(() => setDragConnection(null), 100);
         };
 
-        
-const handleWheel = (e: WheelEvent) => {
-    if (e.ctrlKey) {
-        e.preventDefault();
-        const scaleChange = e.deltaY > 0 ? 0.9 : 1.1;
-        const newScale = Math.min(Math.max(0.5, scale * scaleChange), 2);
-        
-        if (canvasRef.current) {
-            // Get the view window element
-            const viewWindow = document.getElementById('view_window');
-            if (!viewWindow) return;
-
-            // Get both the view window and canvas bounds
-            const viewBounds = viewWindow.getBoundingClientRect();
-            const canvasBounds = canvasRef.current.getBoundingClientRect();
-
-            // Calculate cursor position relative to the view window
-            const cursorXInView = e.clientX - viewBounds.left;
-            const cursorYInView = e.clientY - viewBounds.top;
-
-            // Calculate the cursor position relative to the transformed canvas
-            const cursorXInCanvas = (cursorXInView - dragPosition.x) / scale;
-            const cursorYInCanvas = (cursorYInView - dragPosition.y) / scale;
-
-            // Calculate new position to zoom towards cursor
-            const newX = cursorXInView - cursorXInCanvas * newScale;
-            const newY = cursorYInView - cursorYInCanvas * newScale;
-
-            setScale(newScale);
-            setDragPosition({
-                x: newX,
-                y: newY
-            });
-        }
-            }
-        };
-
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
-        document.addEventListener('wheel', handleWheel, { passive: false });
         return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
-            document.removeEventListener('wheel', handleWheel);
         };
     }, [scale, dragPosition]); // Added dependencies for the zoom calculation
 
@@ -224,7 +184,7 @@ const handleWheel = (e: WheelEvent) => {
                     onMouseLeave={handleMouseUp}
                     onClick={() => setSelectedNodeId(null)}
                     style={{
-                        transform: `translate(${dragPosition.x}px, ${dragPosition.y}px) scale(${scale})`,
+                        transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,
                         width: `${BOARDSIZE}px`,
                         left: "192px",
                         height: `${BOARDSIZE}px`,
