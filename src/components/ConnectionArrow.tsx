@@ -26,6 +26,7 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end
 
     return (
         <svg 
+            id={id}
             className="absolute inset-0 w-full h-full" 
             style={{ zIndex: id === "-1" ? 9999 : 1, pointerEvents: 'none', userSelect: 'none' }}
         >

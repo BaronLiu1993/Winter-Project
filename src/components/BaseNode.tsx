@@ -23,11 +23,12 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
 
         setGlobalZIndex(GlobalZIndex + 1);
         setZIndex(GlobalZIndex + 1);
-
+        console.log(node.id)
         connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
                    .forEach(connection => {
                         const element = document.getElementById(connection.id);
                         if (element) {
+                            console.log("GlobalZIndex", GlobalZIndex);
                             element.style.zIndex = (GlobalZIndex + 2).toString();
                         }
                     });
