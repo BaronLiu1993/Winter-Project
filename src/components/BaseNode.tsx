@@ -3,7 +3,7 @@ import { NodeComponentProps, Position } from '../types/NodeType';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { useConnections } from '../contexts/ConnectionContext';
 
-export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, isSelected, onClick }) => {
+export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, isSelected, onClick, handleDelete }) => {
     const [position, setPosition] = useState(node.position);
     const [isDragging, setIsDragging] = useState(false);
     const dragOffset = useRef<Position>({ x: 0, y: 0 });
@@ -40,11 +40,50 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
             x: e.clientX - dragOffset.current.x,
             y: e.clientY - dragOffset.current.y
         };
+
+        // Check if cursor is over sidebar
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            const sidebarRect = sidebar.getBoundingClientRect();
+            const isOverSidebar = (
+                e.clientX >= sidebarRect.left && 
+                e.clientX <= sidebarRect.right &&
+                e.clientY >= sidebarRect.top && 
+                e.clientY <= sidebarRect.bottom
+            );
+            const element = document.getElementById(node.id.toString());  
+            if (!element) return;
+            if (isOverSidebar) {
+                element.style.opacity = '0.5';
+                element.style.border = '2px dashed red';
+            } else {
+                element.style.opacity = '1';
+                element.style.border = 'none';
+            }
+        }
+
         setPosition(newPosition);
         node.position = newPosition;
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            const sidebarRect = sidebar.getBoundingClientRect();
+            const isOverSidebar = (
+                e.clientX >= sidebarRect.left && 
+                e.clientX <= sidebarRect.right &&
+                e.clientY >= sidebarRect.top && 
+                e.clientY <= sidebarRect.bottom
+            );
+
+            if (isOverSidebar) {
+                setConnections(prev => prev.filter(conn => 
+                    conn.sourceNodeId !== node.id && conn.targetNodeId !== node.id
+                ));
+                handleDelete();
+            }
+        }
         setIsDragging(false);
     };
     useEffect(() => {
@@ -70,6 +109,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
 
     return (
         <div
+            id={node.id.toString()}
             className={`
                 absolute p-6 rounded-xl
                 ${isSelected 

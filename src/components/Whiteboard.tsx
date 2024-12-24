@@ -3,6 +3,7 @@ import { NodeTemplate, Node, Position, Connection as ConnectionType } from '../t
 import { ConnectionArrow } from './ConnectionArrow';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
+import { Sidebar } from './Sidebar';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -139,19 +140,16 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         };
     };
 
+    const handleDeleteNode = (nodeId: string) => {
+        setNodes(prev => prev.filter(n => n.id !== nodeId));
+    };
+
     return (
         <div className="relative w-full h-full bg-gray-100">
-            <div className="absolute left-0 top-0 w-48 h-full bg-white p-4 shadow-lg">
-                {nodeTemplates.map(template => (
-                    <button
-                        key={template.type}
-                        className="w-full p-2 mb-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        onClick={() => handleAddNode(template)}
-                    >
-                        {template.title}
-                    </button>
-                ))}
-            </div>
+            <Sidebar 
+                nodeTemplates={nodeTemplates} 
+                onAddNode={handleAddNode} 
+            />
 
             <div 
                 ref={canvasRef}
@@ -211,6 +209,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                             onPortConnect={handlePortConnect}
                             isSelected={selectedNodeId === node.id}
                             onClick={() => setSelectedNodeId(node.id)}
+                            handleDelete={() => handleDeleteNode(node.id)}
                         />
                     ) : null;
                 })}

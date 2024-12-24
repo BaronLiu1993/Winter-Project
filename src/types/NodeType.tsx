@@ -51,4 +51,5 @@ export interface NodeComponentProps {
     onPortConnect: (nodeId: string, portId: string, portType: 'input' | 'output', position: Position) => void;
     isSelected: boolean;
     onClick: () => void;
+    handleDelete: () => void;
 } 
