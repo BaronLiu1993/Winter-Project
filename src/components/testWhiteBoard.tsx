@@ -77,9 +77,7 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
 
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!isDragging) return;
-    // Return if clicking on a node component
-    const target = event.target as HTMLElement;
-    if (target.closest('.node-identifier')) {
+    if ((event.target as HTMLElement).closest('.node-identifier')) {
         return;
     }
     const dx = event.clientX - lastPosition.x;
@@ -186,9 +184,43 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
         data: template.data
     };
     setNodes(prev => [...prev, newNode]);
-};
+    };
 
+    const getPortPosition = (el: HTMLElement): Position => {
+        const rect = el.getBoundingClientRect();
+        const canvas = canvasRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
+        return {
+            x: rect.left - canvas.left + rect.width / 2,
+            y: rect.top - canvas.top + rect.height / 2
+        };
+    };
+    {/* CONNECTION FUNCTIONALITY ====================================
+    ===============================================================
+    ===============================================================
+    */}
+    
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (canvasRef.current) {
+                const rect = canvasRef.current.getBoundingClientRect();
+                setCursorPosition({
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                });
+            }
+        };  
 
+        const handleMouseUp = (e: MouseEvent) => {
+            setTimeout(() => setDragConnection(null), 100);
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [scale, dragPosition]);
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg">
@@ -232,7 +264,59 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
                         />
                     ) : null;
                 })}
+
+                {connections.map(conn => {
+                        const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
+                        const targetNode = nodes.find(n => n.id === conn.targetNodeId);
+                        if (!sourceNode || !targetNode) return null;
+
+                        const sourcePort = sourceNode.outputs.find(p => p.id === conn.sourcePortId);
+                        const targetPort = targetNode.inputs.find(p => p.id === conn.targetPortId);
+                        if (!sourcePort || !targetPort) return null;
+
+                        const sourceEl = document.querySelector(`[data-port-id="${conn.sourcePortId}"][data-port-type="output"]`);
+                        const targetEl = document.querySelector(`[data-port-id="${conn.targetPortId}"][data-port-type="input"]`);
+                        if (!sourceEl || !targetEl) return null;
+
+                        const sourcePos = getPortPosition(sourceEl as HTMLElement);
+                        const targetPos = getPortPosition(targetEl as HTMLElement);
+
+                        return (
+                            <ConnectionArrow
+                                key={conn.id}
+                                id={conn.id}
+                                start={sourcePos}
+                                end={targetPos}
+                                onDelete={() => {
+                                    setConnections(prev => prev.filter(c => c.id !== conn.id));
+                                }}
+                                onAddNode={() => {
+                                    console.log('Add node between connection:', conn);
+                                }}
+                                startColor="#22c55e"
+                                endColor="#3b82f6"
+                            />
+                        );
+                    })}
+
+                    {dragConnection && (
+                        <ConnectionArrow
+                            key="temp-connection"
+                            id="-1"
+                            start={dragConnection.sourceType === 'output' ? dragConnection.start : cursorPosition}
+                            end={dragConnection.sourceType === 'output' ? cursorPosition : dragConnection.start}
+                            isTemp={true}
+                            startColor="#22c55e"
+                            endColor="#3b82f6"
+                        />
+                    )}
             </div>
+            <button
+                    className="absolute bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    onClick={() => onExecute(nodes, connections)}
+                >
+                    Execute Pipeline
+                </button>
         </div>
     </div>
   );
