@@ -20,7 +20,7 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ start, end, is
     const endControl = rightOrient ? end.x - 100 : end.x + 100;
 
     useEffect(() => {
-        console.log('ConnectionArrow rendered');
+        //this is used to re position the arrowhead
     }, [rightOrient]);
 
     return (
