@@ -229,10 +229,7 @@ const handleWheel = (e: WheelEvent) => {
                         left: "192px",
                         height: `${BOARDSIZE}px`,
                         cursor: isDragging ? 'grabbing' : 'grab',
-                        transformOrigin: '0 0',
-                        backfaceVisibility: 'hidden',
-                        WebkitFontSmoothing: 'subpixel-antialiased',
-                        imageRendering: 'pixelated'
+                        transformOrigin: '0 0'
                     }}
                 >
                     {connections.map(conn => {

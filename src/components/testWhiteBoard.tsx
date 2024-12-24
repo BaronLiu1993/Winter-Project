@@ -67,6 +67,7 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
 
   const handleMouseDown = (event: React.MouseEvent) => {
     if (event.button !== 0) return;
+
     setIsDragging(true);
     setLastPosition({
       x: event.clientX,
@@ -76,7 +77,11 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
 
   const handleMouseMove = (event: React.MouseEvent) => {
     if (!isDragging) return;
-
+    // Return if clicking on a node component
+    const target = event.target as HTMLElement;
+    if (target.closest('.node-identifier')) {
+        return;
+    }
     const dx = event.clientX - lastPosition.x;
     const dy = event.clientY - lastPosition.y;
 
@@ -187,108 +192,48 @@ const ZoomableWhiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecut
 
   return (
     <div className="p-4 bg-gray-100 rounded-lg">
-        <Sidebar 
-                nodeTemplates={nodeTemplates} 
-                onAddNode={handleAddNode} 
-            />
-      <div 
-        ref={containerRef}
-        className="w-full h-96 overflow-hidden cursor-grab"
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        style={{ 
-          touchAction: 'none',
-          height: "100vh", 
-          width: "80vw",
-          marginBottom: "auto",
-          marginLeft: "auto",
-        }}
-      >
-        <div
-          className="w-full h-full relative"
-          style={{
-            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-            transformOrigin: '0 0',
-            backfaceVisibility: 'hidden',
-            WebkitFontSmoothing: 'subpixel-antialiased',
-            imageRendering: 'pixelated'
-          }}
-        >
-          {/* Grid background */}
-          <div className="grid grid-cols-[repeat(50,40px)] grid-rows-[repeat(50,40px)] absolute inset-0">
-            {Array.from({ length: 2500 }).map((_, i) => (
-              <div
-                key={i}
-                className="border border-blue-100"
-              />
-            ))}
-          </div>
-          {nodes.map(node => {
-            const Template = nodeTemplates.find(t => t.type === node.type)?.component;
-            return Template ? (
-                <Template
-                    key={node.id}
-                    node={node}
-                    onPortConnect={handlePortConnect}
-                    isSelected={selectedNodeId === node.id}
-                    onClick={() => setSelectedNodeId(node.id)}
-                    handleDelete={() => handleDeleteNode(node.id)}
-                />
-            ) : null;
-          })}
-          {/* Sample content */}
-          <div className="absolute inset-0">
-            {/* Shapes Group 1 */}
-            <div className="absolute left-40 top-40 flex flex-col items-center">
-              <Square className="text-blue-500" size={48} />
-              <div className="mt-2 bg-white px-2 py-1 rounded shadow text-sm">
-                Square
-              </div>
+        <Sidebar
+            nodeTemplates={nodeTemplates}
+            onAddNode={handleAddNode}
+        />
+        <div id="view_window" style={{
+            height: "100vh",
+            width: "80vw", 
+            marginBottom: "auto",
+            marginLeft: "auto",
+        }}>
+            <div
+                ref={containerRef}
+                className="w-full h-96 bg-blue-200 overflow-hidden cursor-grab"
+                onWheel={handleWheel}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                style={{
+                    touchAction: 'none',
+                    transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                    transformOrigin: '0 0',
+                    backfaceVisibility: 'hidden',
+                    WebkitFontSmoothing: 'subpixel-antialiased',
+                    imageRendering: 'pixelated',
+                    width: `${BOARDSIZE}px`,
+                    height: `${BOARDSIZE}px`,
+                }}
+            >
+                {nodes.map(node => {
+                    const Template = nodeTemplates.find(t => t.type === node.type)?.component;
+                    return Template ? (
+                        <Template
+                            key={node.id}
+                            node={node}
+                            onPortConnect={handlePortConnect}
+                            isSelected={selectedNodeId === node.id}
+                            onClick={() => setSelectedNodeId(node.id)}
+                            handleDelete={() => handleDeleteNode(node.id)}
+                        />
+                    ) : null;
+                })}
             </div>
-
-            {/* Shapes Group 2 */}
-            <div className="absolute left-160 top-80 flex flex-col items-center">
-              <Circle className="text-green-500" size={48} />
-              <div className="mt-2 bg-white px-2 py-1 rounded shadow text-sm">
-                Circle
-              </div>
-            </div>
-
-            {/* Shapes Group 3 */}
-            <div className="absolute left-280 top-40 flex flex-col items-center">
-              <Triangle className="text-purple-500" size={48} />
-              <div className="mt-2 bg-white px-2 py-1 rounded shadow text-sm">
-                Triangle
-              </div>
-            </div>
-
-            {/* Shapes Group 4 */}
-            <div className="absolute left-400 top-80 flex flex-col items-center">
-              <Star className="text-yellow-500" size={48} />
-              <div className="mt-2 bg-white px-2 py-1 rounded shadow text-sm">
-                Star
-              </div>
-            </div>
-
-            {/* Text elements */}
-            <div className="absolute left-200 top-200 bg-white p-4 rounded-lg shadow-lg">
-              <h2 className="text-xl font-bold text-gray-800">Zoomable Whiteboard</h2>
-              <p className="text-gray-600">Try zooming in and out!</p>
-            </div>
-
-            {/* Arrow */}
-            <svg className="absolute left-300 top-160" width="100" height="100">
-              <path
-                d="M10,50 L90,50 M80,40 L90,50 L80,60"
-                stroke="red"
-                strokeWidth="2"
-                fill="none"
-              />
-            </svg>
-          </div>
         </div>
-      </div>
     </div>
   );
 };

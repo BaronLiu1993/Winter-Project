@@ -154,6 +154,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                 }
                 bg-white backdrop-blur-sm
                 cursor-move
+                node-identifier
             `}
             style={{
                 transform: `translate(${position.x}px, ${position.y}px)`,
