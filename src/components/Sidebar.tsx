@@ -8,7 +8,10 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode }) => {
     return (
-        <div className="fixed left-0 top-0 w-48 h-full bg-white p-4 shadow-lg z-50 sidebar">
+        <div className="fixed left-0 top-0 w-48 h-full bg-white p-4 shadow-lg z-50 sidebar"
+        style={{
+            zIndex: 999
+        }}>
             <div className="text-lg font-semibold text-gray-700 mb-4">
                 Node Templates
             </div>

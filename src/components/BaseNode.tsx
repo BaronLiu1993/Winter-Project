@@ -21,15 +21,14 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
             y: e.clientY - position.y
         };
 
-        setGlobalZIndex(GlobalZIndex + 1);
-        setZIndex(GlobalZIndex + 1);
-        console.log(node.id)
+        setGlobalZIndex(GlobalZIndex + 2);
+        setZIndex(1000);
         connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
                    .forEach(connection => {
                         const element = document.getElementById(connection.id);
                         if (element) {
                             console.log("GlobalZIndex", GlobalZIndex);
-                            element.style.zIndex = (GlobalZIndex + 2).toString();
+                            element.style.zIndex = (1001).toString();
                         }
                     });
     };
@@ -67,6 +66,16 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
     };
 
     const handleMouseUp = (e: MouseEvent) => {
+        setZIndex(GlobalZIndex);
+
+        connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
+                   .forEach(connection => {
+                       const element = document.getElementById(connection.id);
+                       if (element) {
+                           element.style.zIndex = (GlobalZIndex + 1).toString();
+                       }
+         });
+
         const sidebar = document.querySelector('.sidebar');
         if (sidebar) {
             const sidebarRect = sidebar.getBoundingClientRect();

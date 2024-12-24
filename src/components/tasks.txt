@@ -15,3 +15,8 @@ add connectionr restrictions
 add error terminal
 
 add different colors for connections that cnatconnect with each other
+
+
+
+multipeople:
+remember to transfer globalzindex

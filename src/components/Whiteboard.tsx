@@ -115,10 +115,9 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         setTimeout(() => {
             const connectionElement = document.getElementById(`conn-${connections.length + 1}`);
             if (connectionElement) {
-                console.log("GlobalZIndex", GlobalZIndex);
                 connectionElement.style.zIndex = (GlobalZIndex + 2).toString();
             }
-            setGlobalZIndex(GlobalZIndex + 1);
+            setGlobalZIndex(GlobalZIndex + 2);
         }, 10);
         setDragConnection(null);
     };
@@ -153,7 +152,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
 
             <div 
                 ref={canvasRef}
-                className="ml-48 h-full relative overflow-hidden"
+                className="h-full relative overflow-hidden"
                 onClick={() => setSelectedNodeId(null)}
             >
                 {connections.map(conn => {
