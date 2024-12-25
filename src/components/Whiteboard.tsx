@@ -5,6 +5,7 @@ import { useConnections } from '../contexts/ConnectionContext';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { Sidebar } from './Sidebar';
 import { useBoardSize } from '../contexts/BoardSizeContext';
+import { executePipeline } from '../services/api';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -27,6 +28,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
     const dragStart = useRef({ x: 0, y: 0 });
     const { connections, setConnections } = useConnections();
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
+    const [executionResult, setExecutionResult] = useState<string>('');
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -219,6 +221,18 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
         setIsDragging(false);
     };
 
+    const handleExecute = async () => {
+        try {
+            const result = await executePipeline(nodes, connections);
+            setExecutionResult(
+                `Nodes: ${result.counts.nodes}, Connections: ${result.counts.connections}`
+            );
+        } catch (error) {
+            console.error('Pipeline execution failed:', error);
+            setExecutionResult('Execution failed');
+        }
+    };
+
     return (
         <div className="w-full h-full bg-gray-100 whiteboard">
             <Sidebar 
@@ -312,12 +326,19 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute }) => 
                     })}
                 </div>
 
-                <button
-                    className="absolute bottom-4 right-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                    onClick={() => onExecute(nodes, connections)}
-                >
-                    Execute Pipeline
-                </button>
+                <div className="absolute bottom-4 right-4 flex items-center gap-4">
+                    {executionResult && (
+                        <div className="bg-white px-4 py-2 rounded-lg shadow text-gray-700">
+                            {executionResult}
+                        </div>
+                    )}
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        onClick={handleExecute}
+                    >
+                        Execute Pipeline
+                    </button>
+                </div>
             </div>
         </div>
     );
