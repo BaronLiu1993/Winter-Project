@@ -21,17 +21,5 @@ add different colors for connections that cnatconnect with each other
 multipeople:
 remember to transfer globalzindex
 
-
-django.db import models
-class data_object(models.
-
-
-models.portType
-
-views.portType
-
-serializers
-
-utils
-
-urls.py
+buy:
+when there are more than one connections, tmp connection arrow wont flip
