@@ -78,3 +78,10 @@ node_modules/
 .vscode/
 *.swp
 *.swo
+
+# Virtual Environment
+venv/
+env/
+.env/
+.venv/
+ENV/
