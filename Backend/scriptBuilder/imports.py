@@ -34,6 +34,13 @@ class Imports(dict):
         :type specifier: str
         """
         import_name = import_name.replace("/", ".")
+        if import_name in self and self[import_name]["as_name"] != as_name:
+                raise ValueError(f"Import {import_name} already exists with different as_name"
+                                 f"consider checking models_requirements file to resolve the conflict"
+                                 f""
+                                 f"\33[91m TODO: Add a way to resolve this conflict automatically\33[0m")
+        elif import_name in self:
+            return
         self[import_name] = {"as_name": as_name, "specifier": specifier}
 
     def add_import_for_model(self, model_name: str, *args) -> None:
@@ -62,6 +69,33 @@ class Imports(dict):
                 if import_dict:
                     for import_name, import_dict in import_dict.items():
                         self.add_import(import_name, **import_dict)
+
+
+    def generate_package_list_for_models(self) -> list:
+        """
+        Generate a list of packages to install for one model
+        :return: List of packages
+        """
+        package_list = []
+        for import_name, import_dict in self.items():
+            package_list.append(import_name)
+        return package_list
+
+
+    @staticmethod
+    def generate_package_list_for_entire_project() -> list:
+        """
+        Generate a list of packages to install for the entire project
+        :return: List of packages
+        """
+        package_list = []
+        for import_name, import_dict in GENERIC_IMPORTS.items():
+            package_list.append(import_name)
+        for model_name, import_dict in MODEL_IMPORTS.items():
+            for import_name, import_dict in import_dict.items():
+                package_list.append(import_name)
+        return package_list
+
 
     def __add__(self, other: 'Imports') -> 'Imports':
         combined = Imports()

@@ -1,4 +1,4 @@
-from webbrowser import register
+from typing import final
 
 from BaseScriptBuilder import BaseScriptGenerator
 
@@ -28,13 +28,38 @@ class HelloWorldScriptGenerator(BaseScriptGenerator):
         from scriptBuildersMethods.helloWorld import main as script
         return script(self)
 
+INDENT: final = "    "
 
-@register_script_type("data_loader")
-class DataLoaderScriptGenerator(BaseScriptGenerator):
-    # not implemented yet
-    pass
-
-@register_script_type("model_builder")
+@register_script_type("ModelBuilder")
 class ModelBuilderScriptGenerator(BaseScriptGenerator):
-    # not implemented yet
-    pass
+    def __init__(self, payload: dict):
+        super().__init__(payload)
+        self.id = payload["pipelineId"]
+        self.nodes = payload["nodes"]
+        self.connections = payload["connections"]
+
+        # A map of node_id -> variable_name in the final script
+        self.node_var_map = {}
+
+    def help(self):
+        print("""
+        SUPPORTED MODELS (as of now ofc):
+        
+        - Data Loading
+        - ImageAugmentation
+        - NN model training
+        
+        """)
+
+
+@register_script_type("DataLoader")
+class DataLoaderScriptGenerator(BaseScriptGenerator):
+    def __init__(self, payload: dict):
+        super().__init__(payload)
+        self.datasetPath = payload["datasetPath"]
+        self.batchSize = payload["batchSize"]
+        self.shuffle = payload["shuffle"]
+        self.models_used = ["data loading"]
+
+    def _raw_script(self) -> str:
+        raise NotImplementedError("DataLoaderScriptGenerator is not implemented yet.")

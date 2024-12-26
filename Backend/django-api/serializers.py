@@ -25,13 +25,7 @@ class HelloWorldPayloadSerializer(BaseScriptPayloadSerializer):
     )
 
 
-@register_serializer("data_loader")
-class DataLoaderPayloadSerializer(BaseScriptPayloadSerializer):
-    # not implemented yet
-    pass
-
-
-@register_serializer("model_builder")
+@register_serializer("ModelBuilder")
 class ModelBuilderPayloadSerializer(BaseScriptPayloadSerializer):
     # not implemented yet
     raise NotImplementedError("ModelBuilderPayloadSerializer is not implemented yet.")

@@ -9,7 +9,8 @@ GENERIC_IMPORTS: final = {"numpy": {"as_name": "np"},
 MODEL_IMPORTS: final = {
     "hello_world": None,
     "k_means": {"sklearn.cluster": {"as_name": "cluster"}},
-    "linear_regression": {"sklearn.linear_model": {"as_name": "linear_model"}}
+    "linear_regression": {"sklearn.linear_model": {"as_name": "linear_model"}},
+    "data loading": {"torch.utils.data": {"as_name": "DataLoader"}, "torchvision.transforms": {"as_name": "transforms"}},
 }
 
 
