@@ -14,3 +14,6 @@ from django.core.asgi import get_asgi_application
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "data_api.settings")
 
 application = get_asgi_application()
+
+#asynchronous server gateway interface that transfers request from websocket to django application
+#used for real time features like chat, notifications, etc.
