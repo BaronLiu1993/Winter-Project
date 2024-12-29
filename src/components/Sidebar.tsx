@@ -1,18 +1,60 @@
 import React, { useState } from 'react';
 import { NodeTemplate } from '../types/NodeType';
-import { Menu, X, Settings, Code, Database, FileText } from 'lucide-react';
+import { Menu, X, Settings, Code, Database, FileText, Home, User } from 'lucide-react';
 
 interface SidebarProps {
     nodeTemplates: NodeTemplate[];
     onAddNode: (template: NodeTemplate) => void;
+    onViewChange?: (view: 'home' | 'whiteboard') => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onViewChange }) => {
     const [isMenuMode, setIsMenuMode] = useState(false);
-    const [currentSection, setCurrentSection] = useState<'nodes' | 'settings' | 'code' | 'data' | 'docs'>('nodes');
+    const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('home');
 
     const renderContent = () => {
         switch (currentSection) {
+            case 'home':
+                return (
+                    <div className="space-y-4">
+                        <h3 className="font-medium">Welcome Back!</h3>
+                        <div className="space-y-2">
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                                <h4 className="font-medium text-blue-700">Recent Projects</h4>
+                                <div className="mt-2 space-y-2">
+                                    <div className="text-sm text-blue-600">Project 1</div>
+                                    <div className="text-sm text-blue-600">Project 2</div>
+                                </div>
+                            </div>
+                            <button className="w-full p-2 bg-blue-500 text-white rounded">
+                                New Project
+                            </button>
+                        </div>
+                    </div>
+                );
+            case 'account':
+                return (
+                    <div className="space-y-4">
+                        <div className="text-center">
+                            <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
+                                <User size={40} className="text-gray-500" />
+                            </div>
+                            <h3 className="font-medium">User Name</h3>
+                            <p className="text-sm text-gray-500">user@example.com</p>
+                        </div>
+                        <div className="space-y-2 pt-4">
+                            <button className="w-full p-2 text-left hover:bg-gray-100 rounded">
+                                Profile Settings
+                            </button>
+                            <button className="w-full p-2 text-left hover:bg-gray-100 rounded">
+                                Preferences
+                            </button>
+                            <button className="w-full p-2 text-left text-red-600 hover:bg-red-50 rounded">
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                );
             case 'nodes':
                 return (
                     <div className="space-y-2">
@@ -77,6 +119,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode }) =>
                         </div>
                     </div>
                 );
+      
         }
     };
 
@@ -98,7 +141,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode }) =>
                 {isMenuMode ? (
                     <div className="p-2 space-y-1">
                         <button 
-                            onClick={() => { setCurrentSection('nodes'); setIsMenuMode(false); }}
+                            onClick={() => { 
+                                setCurrentSection('home'); 
+                                setIsMenuMode(false);
+                                onViewChange?.('home');
+                            }}
+                            className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
+                        >
+                            <Home size={18} /> Home
+                        </button>
+                        <button 
+                            onClick={() => { 
+                                setCurrentSection('nodes'); 
+                                setIsMenuMode(false);
+                                onViewChange?.('whiteboard');
+                            }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
                             <Database size={18} /> Nodes
@@ -126,6 +183,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode }) =>
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
                             <FileText size={18} /> Docs
+                        </button>
+                        <button 
+                            onClick={() => { setCurrentSection('account'); setIsMenuMode(false); }}
+                            className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
+                        >
+                            <User size={18} /> Account
                         </button>
                     </div>
                 ) : (
