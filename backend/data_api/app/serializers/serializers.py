@@ -17,3 +17,9 @@ class ConnectionSerializer(serializers.Serializer):
 class PipelineSerializer(serializers.Serializer):
     nodes = NodeSerializer(many=True)
     connections = ConnectionSerializer(many=True) 
+
+#turns django models into json data
+#only needed for:
+    #Transform Django models to JSON
+    #Validate incoming data structure
+    #Handle complex data transformations

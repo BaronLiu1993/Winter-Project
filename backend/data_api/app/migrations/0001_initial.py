@@ -28,3 +28,9 @@ class Migration(migrations.Migration):
             ],
         ),
     ]
+
+#purpose:
+    #Track database changes
+    #Allow multiple developers to maintain consistent database schemas
+    #Enable rolling back database changes
+    #Provide version control for database structure
