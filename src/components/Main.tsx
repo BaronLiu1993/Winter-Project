@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { NodeTemplate } from '../types/NodeType';
 import { BaseNode } from '../components/BaseNode';
-import Main from '../components/Main';
+import Whiteboard from '../components/Whiteboard';
+import Sidebar from '../components/Sidebar';
+import Home from '../components/Home';
 
 const nodeTemplates: NodeTemplate[] = [
     {
@@ -42,11 +44,37 @@ const nodeTemplates: NodeTemplate[] = [
     }
 ];
 
-const HomePage: React.FC = () => {
+
+const Main: React.FC = () => {
+    const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('whiteboard');
+
+    const renderMainComponent = (currentView: 'home' | 'whiteboard') => {
+        switch (currentView) {
+            case 'home':
+                return <Home />;
+            case 'whiteboard':
+                return (
+                    <Whiteboard 
+                        nodeTemplates={nodeTemplates}
+                        onExecute={(nodes, connections) => console.log('Executing:', { nodes, connections })}
+                        setCurrentView={setCurrentView}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
     
     return (
-        <Main />
+        <div className="w-full h-screen bg-gray-100 whiteboard">
+            <Sidebar 
+                nodeTemplates={nodeTemplates} 
+                setCurrentView={setCurrentView}
+            />
+
+            {renderMainComponent(currentView)}
+    </div>
     );
 };
 
-export default HomePage;
+export default Main;

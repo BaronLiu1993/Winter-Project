@@ -3,20 +3,27 @@ import { NodeTemplate, Node, Position, Connection as ConnectionType } from '../t
 import { ConnectionArrow } from './ConnectionArrow';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
-import { Sidebar } from './Sidebar';
 import { useBoardSize } from '../contexts/BoardSizeContext';
 import { executePipeline } from '../services/api';
 import Home from './Home';
+import { useNodes } from '../contexts/NodesContext';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
     onExecute: (nodes: Node[], connections: ConnectionType[]) => void;
-    onViewChange?: (view: 'home' | 'whiteboard') => void;
+    setCurrentView: (view: 'home' | 'whiteboard') => void;
 }
 
-const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute, onViewChange }) => {
+const Whiteboard: React.FC<WhiteboardProps> = ({ 
+    nodeTemplates, 
+    onExecute, 
+    setCurrentView 
+}) => {
     const { boardSize } = useBoardSize();
-    const [nodes, setNodes] = useState<Node[]>([]);
+
+    const { nodes, setNodes } = useNodes();
+    const { connections, setConnections } = useConnections();
+
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [dragConnectionInfo, setDragConnectionInfo] = useState<{
         sourceNodeId: string;
@@ -28,10 +35,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute, onVie
     const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const dragStart = useRef({ x: 0, y: 0 });
-    const { connections, setConnections } = useConnections();
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
     const [executionResult, setExecutionResult] = useState<string>('');
-    const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('whiteboard');
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -102,32 +107,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute, onVie
         window.addEventListener('wheel', handleWheel, { passive: false });
         return () => window.removeEventListener('wheel', handleWheel);
     }, [dragPosition, boardSize]); // Add dependencies
-
-    // Rest of your existing code remains unchanged...
-    const handleAddNode = (template: NodeTemplate) => {
-        const newNode: Node = {
-            id: `node-${Date.now()}`,
-            type: template.type,
-            position: { x: 200, y: 100 },
-            inputs: template.inputs.map(input => ({
-                id: `${input.name}-${Date.now()}`,
-                type: 'input' as const,
-                name: input.name,
-                dataType: input.dataType,
-                label: input.label
-            })),
-            outputs: template.outputs.map(output => ({
-                id: `${output.name}-${Date.now()}`,
-                type: 'output' as const,
-                name: output.name,
-                dataType: output.dataType,
-                label: output.label
-            })),
-            title: template.title,
-            data: template.data
-        };
-        setNodes(prev => [...prev, newNode]);
-    };
 
     const handlePortConnect = (nodeId: string, portId: string, portType: 'input' | 'output', position: Position) => {
         if (!dragConnectionInfo) {
@@ -235,119 +214,109 @@ const Whiteboard: React.FC<WhiteboardProps> = ({ nodeTemplates, onExecute, onVie
             setExecutionResult('Execution failed');
         }
     };
-
     return (
         <div className="w-full h-full bg-gray-100 whiteboard">
-            <Sidebar 
-                nodeTemplates={nodeTemplates} 
-                onAddNode={handleAddNode}
-                onViewChange={(view) => setCurrentView(view)}
-            />
-            {currentView === 'home' ? (
-                <Home />
-            ) : (
-                <div id="view_window" className="fixed w-full h-full overflow-hidden">
-                    <div 
-                        ref={canvasRef}
-                        className="relative"
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleMouseUp}
-                        onMouseLeave={handleMouseUp}
-                        onClick={() => setSelectedNodeId(null)}
-                        style={{
-                            transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,
-                            width: `${boardSize.width}px`,
-                            left: "192px",
-                            height: `${boardSize.height}px`,
-                            cursor: isDragging ? 'grabbing' : 'grab',
-                            transformOrigin: '0 0',
-                            backgroundColor: 'white',
-                            backgroundImage: 'radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0)',
-                            backgroundSize: '40px 40px'
-                        }}
-                    >
-                        {connections.map(conn => {
-                            const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
-                            const targetNode = nodes.find(n => n.id === conn.targetNodeId);
-                            if (!sourceNode || !targetNode) return null;
+            <div id="view_window" className="fixed w-full h-full overflow-hidden">
+                <div 
+                    ref={canvasRef}
+                    className="relative"
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    onClick={() => setSelectedNodeId(null)}
+                    style={{
+                        transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,
+                        width: `${boardSize.width}px`,
+                        left: "192px",
+                        height: `${boardSize.height}px`,
+                        cursor: isDragging ? 'grabbing' : 'grab',
+                        transformOrigin: '0 0',
+                        backgroundColor: 'white',
+                        backgroundImage: 'radial-gradient(circle at 1px 1px, #cbd5e1 1px, transparent 0)',
+                        backgroundSize: '40px 40px'
+                    }}
+                >
+                    {connections.map(conn => {
+                        const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
+                        const targetNode = nodes.find(n => n.id === conn.targetNodeId);
+                        if (!sourceNode || !targetNode) return null;
 
-                            const sourcePort = sourceNode.outputs.find(p => p.id === conn.sourcePortId);
-                            const targetPort = targetNode.inputs.find(p => p.id === conn.targetPortId);
-                            if (!sourcePort || !targetPort) return null;
+                        const sourcePort = sourceNode.outputs.find(p => p.id === conn.sourcePortId);
+                        const targetPort = targetNode.inputs.find(p => p.id === conn.targetPortId);
+                        if (!sourcePort || !targetPort) return null;
 
-                            const sourceEl = document.querySelector(`[data-port-id="${conn.sourcePortId}"][data-port-type="output"]`);
-                            const targetEl = document.querySelector(`[data-port-id="${conn.targetPortId}"][data-port-type="input"]`);
-                            if (!sourceEl || !targetEl) return null;
+                        const sourceEl = document.querySelector(`[data-port-id="${conn.sourcePortId}"][data-port-type="output"]`);
+                        const targetEl = document.querySelector(`[data-port-id="${conn.targetPortId}"][data-port-type="input"]`);
+                        if (!sourceEl || !targetEl) return null;
 
-                            const sourcePos = getPortPosition(sourceEl as HTMLElement);
-                            const targetPos = getPortPosition(targetEl as HTMLElement);
+                        const sourcePos = getPortPosition(sourceEl as HTMLElement);
+                        const targetPos = getPortPosition(targetEl as HTMLElement);
 
-                            return (
-                                <ConnectionArrow
-                                    key={conn.id}
-                                    id={conn.id}
-                                    start={sourcePos}
-                                    end={targetPos}
-                                    onDelete={() => {
-                                        setConnections(prev => prev.filter(c => c.id !== conn.id));
-                                    }}
-                                    onAddNode={() => {
-                                        console.log('Add node between connection:', conn);
-                                    }}
-                                    startColor="#22c55e"
-                                    endColor="#3b82f6"
-                                />
-                            );
-                        })}
-
-                        {dragConnectionInfo && (
+                        return (
                             <ConnectionArrow
-                                key="temp-connection"
-                                id="-1"
-                                start={(() => {
-                                    const sourceEl = document.querySelector(
-                                        `[data-port-id="${dragConnectionInfo.sourcePortId}"][data-port-type="${dragConnectionInfo.sourceType}"]`
-                                    );
-                                    return sourceEl ? getPortPosition(sourceEl as HTMLElement) : { x: 0, y: 0 };
-                                })()}
-                                end={cursorPosition}
-                                isTemp={true}
+                                key={conn.id}
+                                id={conn.id}
+                                start={sourcePos}
+                                end={targetPos}
+                                onDelete={() => {
+                                    setConnections(prev => prev.filter(c => c.id !== conn.id));
+                                }}
+                                onAddNode={() => {
+                                    console.log('Add node between connection:', conn);
+                                }}
                                 startColor="#22c55e"
                                 endColor="#3b82f6"
                             />
-                        )}
+                        );
+                    })}
 
-                        {nodes.map(node => {
-                            const Template = nodeTemplates.find(t => t.type === node.type)?.component;
-                            return Template ? (
-                                <Template
-                                    key={node.id}
-                                    node={node}
-                                    onPortConnect={handlePortConnect}
-                                    isSelected={selectedNodeId === node.id}
-                                    onClick={() => setSelectedNodeId(node.id)}
-                                    handleDelete={() => handleDeleteNode(node.id)}
-                                />
-                            ) : null;
-                        })}
-                    </div>
+                    {dragConnectionInfo && (
+                        <ConnectionArrow
+                            key="temp-connection"
+                            id="-1"
+                            start={(() => {
+                                const sourceEl = document.querySelector(
+                                    `[data-port-id="${dragConnectionInfo.sourcePortId}"][data-port-type="${dragConnectionInfo.sourceType}"]`
+                                );
+                                return sourceEl ? getPortPosition(sourceEl as HTMLElement) : { x: 0, y: 0 };
+                            })()}
+                            end={cursorPosition}
+                            isTemp={true}
+                            startColor="#22c55e"
+                            endColor="#3b82f6"
+                        />
+                    )}
 
-                    <div className="absolute bottom-4 right-4 flex items-center gap-4">
-                        {executionResult && (
-                            <div className="bg-white px-4 py-2 rounded-lg shadow text-gray-700">
-                                {executionResult}
-                            </div>
-                        )}
-                        <button
-                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                            onClick={handleExecute}
-                        >
-                            Execute Pipeline
-                        </button>
-                    </div>
+                    {nodes.map(node => {
+                        const Template = nodeTemplates.find(t => t.type === node.type)?.component;
+                        return Template ? (
+                            <Template
+                                key={node.id}
+                                node={node}
+                                onPortConnect={handlePortConnect}
+                                isSelected={selectedNodeId === node.id}
+                                onClick={() => setSelectedNodeId(node.id)}
+                                handleDelete={() => handleDeleteNode(node.id)}
+                            />
+                        ) : null;
+                    })}
                 </div>
-            )}
+
+                <div className="absolute bottom-4 right-4 flex items-center gap-4">
+                    {executionResult && (
+                        <div className="bg-white px-4 py-2 rounded-lg shadow text-gray-700">
+                            {executionResult}
+                        </div>
+                    )}
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        onClick={handleExecute}
+                    >
+                        Execute Pipeline
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

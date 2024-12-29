@@ -1,10 +1,8 @@
 import Error from "../components/Error";
-import "../styles/bento_animation.css";
-import "../styles/bento.css";
-import Whiteboard from "../components/Whiteboard";
+import Main from "../components/Main";
 
 export default function Home() {
   return (
-    <></>
+    <Main />
   );
 }

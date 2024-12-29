@@ -4,6 +4,7 @@ import { ConnectionProvider } from '../contexts/ConnectionContext';
 
 import type { AppProps } from "next/app";
 import { BoardSizeProvider } from "../contexts/BoardSizeContext";
+import { NodesProvider } from "../contexts/NodesContext";
 
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -11,7 +12,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <GlobalZIndexProvider>
       <ConnectionProvider>
         <BoardSizeProvider>
-          <Component {...pageProps} /> 
+          <NodesProvider>
+            <Component {...pageProps} /> 
+          </NodesProvider>
         </BoardSizeProvider>
       </ConnectionProvider>
     </GlobalZIndexProvider>

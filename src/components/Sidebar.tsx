@@ -1,16 +1,45 @@
 import React, { useState } from 'react';
-import { NodeTemplate } from '../types/NodeType';
+import { NodeTemplate, Node } from '../types/NodeType';
 import { Menu, X, Settings, Code, Database, FileText, Home, User } from 'lucide-react';
+import { useNodes } from '../contexts/NodesContext';
+import { useConnections } from '../contexts/ConnectionContext';
 
 interface SidebarProps {
     nodeTemplates: NodeTemplate[];
-    onAddNode: (template: NodeTemplate) => void;
-    onViewChange?: (view: 'home' | 'whiteboard') => void;
+    setCurrentView: (view: 'home' | 'whiteboard') => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onViewChange }) => {
+const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
     const [isMenuMode, setIsMenuMode] = useState(false);
     const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('home');
+
+    const { nodes, setNodes } = useNodes();
+    const { connections, setConnections } = useConnections();
+
+    const handleAddNode = (template: NodeTemplate) => {
+        const newNode: Node = {
+            id: `node-${Date.now()}`,
+            type: template.type,
+            position: { x: 200, y: 100 },
+            inputs: template.inputs.map(input => ({
+                id: `${input.name}-${Date.now()}`,
+                type: 'input' as const,
+                name: input.name,
+                dataType: input.dataType,
+                label: input.label
+            })),
+            outputs: template.outputs.map(output => ({
+                id: `${output.name}-${Date.now()}`,
+                type: 'output' as const,
+                name: output.name,
+                dataType: output.dataType,
+                label: output.label
+            })),
+            title: template.title,
+            data: template.data
+        };
+        setNodes(prev => [...prev, newNode]);
+    };
 
     const renderContent = () => {
         switch (currentSection) {
@@ -18,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onVi
                 return (
                     <div className="space-y-4">
                         <h3 className="font-medium">Welcome Back!</h3>
-                        <div className="space-y-2">
+                        {/* <div className="space-y-2">
                             <div className="bg-blue-50 p-4 rounded-lg">
                                 <h4 className="font-medium text-blue-700">Recent Projects</h4>
                                 <div className="mt-2 space-y-2">
@@ -29,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onVi
                             <button className="w-full p-2 bg-blue-500 text-white rounded">
                                 New Project
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                 );
             case 'account':
@@ -63,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onVi
                                 key={template.type}
                                 className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 
                                          transition-colors duration-200 flex items-center gap-2"
-                                onClick={() => onAddNode(template)}
+                                onClick={() => handleAddNode(template)}
                             >
                                 {template.title}
                             </button>
@@ -144,7 +173,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onVi
                             onClick={() => { 
                                 setCurrentSection('home'); 
                                 setIsMenuMode(false);
-                                onViewChange?.('home');
+                                setCurrentView('home');
                             }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
@@ -154,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onVi
                             onClick={() => { 
                                 setCurrentSection('nodes'); 
                                 setIsMenuMode(false);
-                                onViewChange?.('whiteboard');
+                                setCurrentView('whiteboard');
                             }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
@@ -208,3 +237,5 @@ export const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, onAddNode, onVi
         </div>
     );
 }; 
+
+export default Sidebar;
