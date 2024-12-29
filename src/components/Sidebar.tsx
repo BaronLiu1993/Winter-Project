@@ -187,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
                             }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
-                            <Database size={18} /> Nodes
+                            <Database size={18} /> White Board
                         </button>
                         <button 
                             onClick={() => { setCurrentSection('settings'); setIsMenuMode(false); }}
