@@ -4,6 +4,7 @@ import { BaseNode } from '../components/BaseNode';
 import Whiteboard from '../components/Whiteboard';
 import Sidebar from '../components/Sidebar';
 import Home from '../components/Home';
+import Login from '../components/Login';
 
 const nodeTemplates: NodeTemplate[] = [
     {
@@ -46,7 +47,18 @@ const nodeTemplates: NodeTemplate[] = [
 
 
 const Main: React.FC = () => {
-    const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('whiteboard');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('home');
+
+    const handleLogin = async (email: string, password: string) => {
+        // Add your authentication logic here
+        // For now, just simulate a successful login
+        setIsAuthenticated(true);
+    };
+
+    if (!isAuthenticated) {
+        return <Login onLogin={handleLogin} />;
+    }
 
     const renderMainComponent = (currentView: 'home' | 'whiteboard') => {
         switch (currentView) {
