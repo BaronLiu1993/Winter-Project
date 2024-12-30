@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { User, Lock } from 'lucide-react';
+import { User, Lock, Mail } from 'lucide-react';
 
-interface LoginProps {
-    onLogin: (email: string, password: string) => void;
-    onSignupClick: () => void;
+interface SignupProps {
+    onSignup: (userData: { email: string; id: string }) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
+const Signup: React.FC<SignupProps> = ({ onSignup }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -16,11 +15,25 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        
+
         try {
-            await onLogin(email, password);
+            const response = await fetch('http://localhost:8000/api/signup/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Signup failed');
+            }
+
+            onSignup(data.user);
         } catch (err) {
-            setError('Invalid credentials');
+            setError(err instanceof Error ? err.message : 'Signup failed');
         } finally {
             setIsLoading(false);
         }
@@ -30,8 +43,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
         <div className="min-h-screen bg-gray-100 flex items-center justify-center">
             <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-                    <p className="text-gray-600">Please sign in to continue</p>
+                    <h1 className="text-2xl font-bold text-gray-800">Create Account</h1>
+                    <p className="text-gray-600">Sign up to get started</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -40,9 +53,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
                             Email
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <User className="h-5 w-5 text-gray-400" />
-                            </div>
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                             <input
                                 type="email"
                                 value={email}
@@ -60,9 +71,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
                             Password
                         </label>
                         <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Lock className="h-5 w-5 text-gray-400" />
-                            </div>
+                            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                             <input
                                 type="password"
                                 value={password}
@@ -88,28 +97,12 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
                                  bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
                                  focus:ring-blue-500 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        {isLoading ? 'Signing in...' : 'Sign In'}
+                        {isLoading ? 'Creating Account...' : 'Sign Up'}
                     </button>
-
-                    <div className="text-center space-y-4">
-                        <a href="#" className="text-sm text-blue-600 hover:text-blue-500">
-                            Forgot your password?
-                        </a>
-                        
-                        <div className="border-t border-gray-200 pt-4">
-                            <button
-                                type="button"
-                                onClick={onSignupClick}
-                                className="text-sm text-blue-600 hover:text-blue-500"
-                            >
-                                Don't have an account? Sign up
-                            </button>
-                        </div>
-                    </div>
                 </form>
             </div>
         </div>
     );
 };
 
-export default Login; 
+export default Signup; 

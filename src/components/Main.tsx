@@ -5,6 +5,7 @@ import Whiteboard from '../components/Whiteboard';
 import Sidebar from '../components/Sidebar';
 import Home from '../components/Home';
 import Login from '../components/Login';
+import Signup from './Signup';
 
 const nodeTemplates: NodeTemplate[] = [
     {
@@ -49,6 +50,7 @@ const nodeTemplates: NodeTemplate[] = [
 const Main: React.FC = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('home');
+    const [isSignup, setIsSignup] = useState(false);
 
     const handleLogin = async (email: string, password: string) => {
         // Add your authentication logic here
@@ -56,8 +58,19 @@ const Main: React.FC = () => {
         setIsAuthenticated(true);
     };
 
+    const handleSignup = (userData: { email: string; id: string }) => {
+        setIsAuthenticated(true);
+    };
+
     if (!isAuthenticated) {
-        return <Login onLogin={handleLogin} />;
+        return isSignup ? (
+            <Signup onSignup={handleSignup} />
+        ) : (
+            <Login 
+                onLogin={handleLogin} 
+                onSignupClick={() => setIsSignup(true)}
+            />
+        );
     }
 
     const renderMainComponent = (currentView: 'home' | 'whiteboard') => {
