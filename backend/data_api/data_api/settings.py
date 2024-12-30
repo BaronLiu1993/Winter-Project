@@ -140,7 +140,7 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'app.User'
+AUTH_USER_MODEL = 'app.User' # tells django to use the User model defined in models.py instead of django.contrib.auth.models.User
 
 # Add MongoDB settings
 MONGODB_URI = os.getenv('MONGODB_URI')
