@@ -7,7 +7,7 @@ from django.conf import settings
 from .models import User
 import jwt
 from datetime import datetime, timedelta
-
+from bcrypt import hashpw, gensalt
 
 class ExecutePipelineView(APIView):
     def post(self, request):
@@ -33,12 +33,15 @@ class SignupView(APIView):
             email = request.data.get('email')
             password = request.data.get('password')
 
+            hashed_password = hashpw(password.encode('utf-8'), gensalt())
+
             if not email or not password:
                 return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
             # Insert user data into MongoDB
             mongo_user = users_collection.insert_one({
                 'email': email,
+                'password': hashed_password,
                 'created_at': datetime.now()
             })
 
@@ -46,7 +49,7 @@ class SignupView(APIView):
             user = User.objects.create_user(
                 username=email,
                 email=email,
-                password=password,
+                password=hashed_password,
                 mongodb_id=str(mongo_user.inserted_id)  # Save the MongoDB ID
             )
 
@@ -63,3 +66,37 @@ class SignupView(APIView):
 
         except Exception as e:
             return Response({'error': f"Signup failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+class LoginView(APIView):
+    def post(self, request):
+        try:
+            # Get credentials from request
+            email = request.data.get('email')
+            password = request.data.get('password')
+
+            if not email or not password:
+                return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Connect to MongoDB
+            client = MongoClient(
+                settings.MONGODB_URI,
+                serverSelectionTimeoutMS=5000
+            )
+            db = client.get_database('users')
+            users_collection = db.users
+
+            # Find user in MongoDB
+            user_data = users_collection.find_one({'email': email})
+            
+            if not user_data:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            print(user_data)
+            # Return user data
+            return Response({
+                'email': user_data['email'],
+                'id': str(user_data['_id']),
+                'password': user_data['password']
+            })
+
+        except Exception as e:
+            return Response({'error': f"Login failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)

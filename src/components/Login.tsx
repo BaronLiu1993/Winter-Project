@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { User, Lock } from 'lucide-react';
 
 interface LoginProps {
-    onLogin: (email: string, password: string) => void;
+    onLogin: (user: object) => void;
     onSignupClick: () => void;
 }
 
@@ -16,11 +16,25 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
         e.preventDefault();
         setIsLoading(true);
         setError('');
-        
+
         try {
-            await onLogin(email, password);
+            const response = await fetch('http://localhost:8000/api/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Signup failed');
+            }
+
+            onLogin(data.user);
         } catch (err) {
-            setError('Invalid credentials');
+            setError(err instanceof Error ? err.message : 'Signup failed');
         } finally {
             setIsLoading(false);
         }

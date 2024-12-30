@@ -52,10 +52,11 @@ const Main: React.FC = () => {
     const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('home');
     const [isSignup, setIsSignup] = useState(false);
 
-    const handleLogin = async (email: string, password: string) => {
+    const handleLogin = async (user: object) => {
         // Add your authentication logic here
         // For now, just simulate a successful login
-        setIsAuthenticated(true);
+        console.log(user);
+        // setIsAuthenticated(true);
     };
 
     const handleSignup = (userData: { email: string; id: string }) => {
