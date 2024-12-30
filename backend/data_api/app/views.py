@@ -4,7 +4,7 @@ from rest_framework import status
 from .utils.utils import process_pipeline
 from pymongo import MongoClient
 from django.conf import settings
-from .models.models import User
+from .models import User
 import jwt
 from datetime import datetime, timedelta
 
@@ -26,16 +26,15 @@ users_collection = db.users
 
 class SignupView(APIView):
     def post(self, request):
+
         try:
             email = request.data.get('email')
             password = request.data.get('password')
 
             if not email or not password:
                 return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
-
-            if User.objects.filter(email=email).exists():
-                return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
+            # if User.objects.filter(email=email).exists():
+            #     return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
             # Insert user data into MongoDB
             mongo_user = users_collection.insert_one({
                 'email': email,
@@ -63,3 +62,18 @@ class SignupView(APIView):
 
         except Exception as e:
             return Response({'error': f"Signup failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+# Add this new view to test connection
+class TestConnectionView(APIView):
+    def get(self, request):
+        try:
+            # The ismaster command is cheap and does not require auth.
+            client.admin.command('ping')
+            print("MongoDB connection successful!")
+            return Response({"status": "Connected to MongoDB successfully!"})
+        except ConnectionFailure:
+            print("MongoDB connection failed!")
+            return Response(
+                {"error": "Server not available"}, 
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )

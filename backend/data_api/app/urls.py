@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import ExecutePipelineView, SignupView
+from .views import ExecutePipelineView, SignupView, TestConnectionView
 
 urlpatterns = [
     path('execute-pipeline/', ExecutePipelineView.as_view(), name='execute-pipeline'),
     path('signup/', SignupView.as_view(), name='signup'),
+    path('test-connection/', TestConnectionView.as_view(), name='test-connection'),
 ] 
 
 #as_view() is a method that converts class-based view into a function based view that takes request and return response

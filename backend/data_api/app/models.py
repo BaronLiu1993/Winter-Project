@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 class Pipeline(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -8,10 +9,10 @@ class Pipeline(models.Model):
     def __str__(self):
         return f"Pipeline created at {self.created_at}" 
     
-class User(models.Model):
+class User(AbstractUser):
     email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)
-    mongodb_id = models.CharField(max_length=24, null=True, blank=True)  # MongoDB reference
+    created_at = models.DateTimeField(auto_now_add=True)
+    mongodb_id = models.CharField(max_length=24, blank=True, null=True)
 
     def __str__(self):
         return self.email
