@@ -53,7 +53,7 @@ class SignupView(APIView):
                 mongodb_id=str(mongo_user.inserted_id)  # Save the MongoDB ID
             )
 
-            token = jwt.encode({'user_id': user.id, 'exp': datetime.utcnow() + timedelta(days=1)},
+            token = jwt.encode({'user_id': str(user.id), 'exp': datetime.utcnow() + timedelta(days=1)},
                                'your_secret_key', algorithm='HS256')
 
             return Response({
@@ -92,11 +92,18 @@ class LoginView(APIView):
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
             print(user_data)
             # Return user data
+            
+            token = jwt.encode({'user_id': str(user_data['_id']), 'exp': datetime.utcnow() + timedelta(days=1)},
+                               'your_secret_key', algorithm='HS256')
+
             return Response({
-                'email': user_data['email'],
-                'id': str(user_data['_id']),
-                'password': user_data['password']
-            })
+                'token': token,
+                'user': {
+                    'email': user_data['email'],
+                    'id': str(user_data['_id']),
+                    'password': user_data['password']
+                }
+            });
 
         except Exception as e:
             return Response({'error': f"Login failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
