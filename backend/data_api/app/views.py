@@ -24,7 +24,7 @@ class SignupView(APIView):
         try:
             # MongoClient inside the method to ensure it works during the post request
             client = MongoClient(
-                "mongodb+srv://jefflu234:Ljun1216@user.hnigv.mongodb.net/users?retryWrites=true&w=majority&appName=User",
+                settings.MONGODB_URI,
                 serverSelectionTimeoutMS=5000  # Timeout after 5 seconds
             )
             db = client.get_database('users')
@@ -63,17 +63,3 @@ class SignupView(APIView):
 
         except Exception as e:
             return Response({'error': f"Signup failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-# Add this new view to test connection
-class TestConnectionView(APIView):
-    def get(self, request):
-        try:
-            # The ismaster command is cheap and does not require auth.
-            client.admin.command('ping')
-            print("MongoDB connection successful!")
-            return Response({"status": "Connected to MongoDB successfully!"})
-        except Exception as e:
-            print(f"MongoDB connection failed: {str(e)}")
-            return Response(
-                {"error": "Server not available"}, 
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )
