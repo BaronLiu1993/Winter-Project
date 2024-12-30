@@ -19,22 +19,23 @@ class ExecutePipelineView(APIView):
                 {'status': 'error', 'message': str(e)}, 
                 status=status.HTTP_400_BAD_REQUEST
             ) 
-        
-client = MongoClient("mongodb+srv://jefflu234:Ljun1216@user.hnigv.mongodb.net/users?retryWrites=true&w=majority&appName=User")  # You can store the Mongo URI in Django settings
-db = client.get_database()
-users_collection = db.users
-
 class SignupView(APIView):
     def post(self, request):
-
         try:
+            # MongoClient inside the method to ensure it works during the post request
+            client = MongoClient(
+                "mongodb+srv://jefflu234:Ljun1216@user.hnigv.mongodb.net/users?retryWrites=true&w=majority&appName=User",
+                serverSelectionTimeoutMS=5000  # Timeout after 5 seconds
+            )
+            db = client.get_database('users')
+            users_collection = db.users
+
             email = request.data.get('email')
             password = request.data.get('password')
 
             if not email or not password:
                 return Response({'error': 'Email and password are required'}, status=status.HTTP_400_BAD_REQUEST)
-            # if User.objects.filter(email=email).exists():
-            #     return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
             # Insert user data into MongoDB
             mongo_user = users_collection.insert_one({
                 'email': email,
@@ -62,7 +63,6 @@ class SignupView(APIView):
 
         except Exception as e:
             return Response({'error': f"Signup failed: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
 # Add this new view to test connection
 class TestConnectionView(APIView):
     def get(self, request):
@@ -71,8 +71,8 @@ class TestConnectionView(APIView):
             client.admin.command('ping')
             print("MongoDB connection successful!")
             return Response({"status": "Connected to MongoDB successfully!"})
-        except ConnectionFailure:
-            print("MongoDB connection failed!")
+        except Exception as e:
+            print(f"MongoDB connection failed: {str(e)}")
             return Response(
                 {"error": "Server not available"}, 
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
