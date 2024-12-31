@@ -2,17 +2,7 @@ from typing import final
 
 from BaseScriptBuilder import BaseScriptGenerator
 
-SCRIPT_GENERATOR_REGISTRY = {}
-
-def register_script_type(script_type):
-    """
-    A decorator to register script generator subclasses.
-    """
-    def wrapper(cls):
-        SCRIPT_GENERATOR_REGISTRY[script_type] = cls
-        cls.script_type = script_type  # Attach script_type metadata to the class
-        return cls
-    return wrapper
+INDENT: final = "    "
 
 class HelloWorldScriptGenerator(BaseScriptGenerator):
     """
@@ -26,8 +16,6 @@ class HelloWorldScriptGenerator(BaseScriptGenerator):
     def _raw_script(self) -> str:
         from script_builder_models.helloWorld import main as script
         return script(self)
-
-INDENT: final = "    "
 
 class ModelBuilderScriptGenerator(BaseScriptGenerator):
     def __init__(self, payload: dict):
