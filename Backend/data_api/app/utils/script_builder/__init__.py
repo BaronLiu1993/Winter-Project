@@ -1,8 +1,7 @@
 from typing import final
 
 from BaseScriptBuilder import BaseScriptGenerator
-
-INDENT: final = "    "
+from constants import * # noqa
 
 class ModelBuilderScriptGenerator(BaseScriptGenerator):
     def __init__(self, payload: dict):
