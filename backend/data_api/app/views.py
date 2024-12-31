@@ -8,6 +8,7 @@ from .models import User
 import jwt
 from datetime import datetime, timedelta
 from bcrypt import hashpw, gensalt
+from bson.objectid import ObjectId
 
 class ExecutePipelineView(APIView):
     def post(self, request):
@@ -193,3 +194,27 @@ class AllProjectsView(APIView):
                 {'error': f"Failed to fetch projects: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class DeleteProjectView(APIView):
+    def delete(self, request):
+        try:
+            project_id = request.query_params.get('project_id')
+            if not project_id:
+                return Response({'error': 'Project ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            client = MongoClient(settings.MONGODB_URI)
+            db = client.get_database('projects')
+            projects_collection = db.projects
+
+            result = projects_collection.delete_one({'_id': ObjectId(project_id)})
+            if result.deleted_count == 1:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response(
+                {'error': f"Failed to delete project: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+

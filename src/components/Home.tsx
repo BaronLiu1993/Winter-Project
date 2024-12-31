@@ -1,20 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { newProject } from '../services/api';
+import { deleteProject, newProject } from '../services/api';
 import NewProjectModal from './NewProjectModal';
 import { useUser } from '../contexts/UserContext';
 import { fetchAllProjects } from '../services/api';
 import { Globe, Lock, Users } from 'lucide-react';
 import { Project } from '../types/NodeType';
+import ProjectContextMenu from './ProjectContextMenu';
 
 interface HomeProps {
     setIsModalOpen: (isModalOpen: boolean) => void;
     projects: Project[];
-    setProjects: (projects: Project[]) => void;
+    setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
+}
+
+interface ContextMenu {
+    show: boolean;
+    x: number;
+    y: number;
+    projectId: string;
 }
 
 const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) => {
     const { user } = useUser();
+    const [contextMenu, setContextMenu] = useState<ContextMenu>({
+        show: false,
+        x: 0,
+        y: 0,
+        projectId: ''
+    });
 
     useEffect(() => {
         if (user) {
@@ -26,6 +40,32 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
 
     const handleProjectClick = (projectId: string) => {
         console.log('Project clicked:', projectId);
+    };
+
+    //right click project panel to open context menu
+    const handleContextMenu = (e: React.MouseEvent, projectId: string) => {
+        e.preventDefault();
+        setContextMenu({
+            show: true,
+            x: e.pageX,
+            y: e.pageY,
+            projectId
+        });
+    };
+
+    const handleEditProject = () => {
+        console.log('Edit project:', contextMenu.projectId);
+        setContextMenu({ ...contextMenu, show: false });
+    };
+
+    const handleDeleteProject = async () => {
+        try {
+            await deleteProject(contextMenu.projectId);
+            setProjects(prevProjects => prevProjects.filter((project: Project) => project.id !== contextMenu.projectId));
+            setContextMenu({ ...contextMenu, show: false });
+        } catch (error) {
+            console.error('Failed to delete project:', error);
+        }
     };
 
     return (
@@ -71,6 +111,7 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
                         <div 
                             key={project.id}
                             onClick={() => handleProjectClick(project.id)}
+                            onContextMenu={(e) => handleContextMenu(e, project.id)}
                             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
                         >
                             <div className="flex justify-between items-start mb-4">
@@ -112,6 +153,16 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
                     <div className="text-center py-6">
                         <p className="text-gray-500">No projects yet. Create your first project!</p>
                     </div>
+                )}
+
+                {contextMenu.show && (
+                    <ProjectContextMenu
+                        x={contextMenu.x}
+                        y={contextMenu.y}
+                        onEdit={handleEditProject}
+                        onDelete={handleDeleteProject}
+                        onClose={() => setContextMenu({ ...contextMenu, show: false })}
+                    />
                 )}
             </div>          
         </div>

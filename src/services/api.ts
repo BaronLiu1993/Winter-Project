@@ -63,3 +63,16 @@ export const fetchAllProjects = async (user_id: string) => {
         return [];
     }
 };
+
+export const deleteProject = async (project_id: string) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/delete-project/?project_id=${project_id}`, { method: 'DELETE' });
+        if (!response.ok) {
+            throw new Error('Failed to delete project');
+        }
+        return response.status;
+    } catch (error) {
+        console.error('Error deleting project:', error);
+        return [];
+    }
+};
