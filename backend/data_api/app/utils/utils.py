@@ -124,7 +124,7 @@ class PyTorchScriptGenerator:
         return input_vars
     
     def _generate_node_code(self, node_type, node_var, node_data, input_vars, indent):
-        from scripting_tool import dataloader_writer, image_augmentation_writer, trainer_writer
+        from backend.data_api.app.utils.scripting_tools.scripting_tool import dataloader_writer, image_augmentation_writer, trainer_writer
         """
         Generate code lines for a single node, given:
          - node_type (e.g. "DataLoader", "ImageAugmentation", "ModelTraining", etc.)
