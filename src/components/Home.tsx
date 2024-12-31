@@ -84,14 +84,14 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
                                 )}
                             </div>
                             
-                            {project.collaborators.length > 0 && (
-                                <div className="flex items-center text-gray-600 mb-2">
-                                    <Users size={16} className="mr-2" />
-                                    <span className="text-sm">
-                                        {project.collaborators.length} collaborator{project.collaborators.length !== 1 ? 's' : ''}
-                                    </span>
-                                </div>
-                            )}
+                            <div className="flex items-center text-gray-600 mb-2">
+                                <Users size={16} className="mr-2" />
+                                <span className="text-sm">
+                                    {project.collaborators.length === 0 
+                                        ? 'No collaborators' 
+                                        : `${project.collaborators.length} collaborator${project.collaborators.length !== 1 ? 's' : ''}`}
+                                </span>
+                            </div>
 
                             <div className="flex flex-wrap gap-2 mt-3">
                                 {project.collaborators.map(collaborator => (
