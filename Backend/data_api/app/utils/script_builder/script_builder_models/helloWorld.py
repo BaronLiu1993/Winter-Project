@@ -1,14 +1,9 @@
-from Backend.data_api.script_builder.BaseScriptBuilder import BaseScriptGenerator
+import 
 
-def main(scriptGenerator: BaseScriptGenerator):
-    greeting = scriptGenerator.payload.get("greeting", "Hello, World!")
-    numbers = scriptGenerator.payload.get("numbers", {})
-    a = numbers.get("a", 0)
-    b = numbers.get("b", 0)
 
-    script_lines = [
-        f'print("{greeting}")',
-        f"result = {a} + {b}",
-        'print("The result is:", result)',
-    ]
-    return "\n".join(script_lines)
+def foo1(a, b):
+    pass
+
+BLOCK_SCRIPT_MAP = {"ji": lambda: foo1(1, 2)}
+
+

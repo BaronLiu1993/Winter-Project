@@ -1,6 +1,6 @@
 from typing import final
 
-from BaseScriptBuilder import BaseScriptGenerator
+from Backend.data_api.app.utils.script_builder.base_script_builder import BaseScriptGenerator
 from constants import * # noqa
 
 class ModelBuilderScriptGenerator(BaseScriptGenerator):
@@ -14,8 +14,7 @@ class ModelBuilderScriptGenerator(BaseScriptGenerator):
         self.node_var_map = {}
 
     def _raw_script(self) -> str:
-        from script_builder_models.PyTorchScriptGenerator import main as generate_script
-        return generate_script(self.nodes, self.connections)
+        return
 
     
 

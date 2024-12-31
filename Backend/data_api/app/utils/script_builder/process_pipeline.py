@@ -1,5 +1,5 @@
 
-from BaseScriptBuilder import BaseScriptGenerator
+from Backend.data_api.app.utils.script_builder.base_script_builder import BaseScriptGenerator
 from topological_sort import TopologicalSorter
 
 class PyTorchScriptGenerator:
@@ -212,21 +212,24 @@ def process_pipeline(data):
         # Perform topological sort
         sorted_nodes = topological_sorter._topological_sort(adjacency_list, in_degrees)
 
-        imports_script = []
 
         for node_id in sorted_nodes:
             node = nodes[node_id]
             node_type = node["type"]
             node_data = node["data"]
             
+            generator.models_used.append(node_type)
+
+            input_vars = topological_sorter._get_input_vars(node_id)
             
+            node_var_name = f"{node_type.lower()}_{node_id}"  # e.g., dataloader_node1
+            topological_sorter.node_var_map[node_id] = node_var_name
 
             
-            # We figure out all of this node’s upstream connections
-            # so we know which variables to pass in as input
+
         
-        
-        
+
+
         script_string = generator.generate_script()
 
         return script_string

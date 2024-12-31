@@ -1,5 +1,9 @@
 import json
 
+
+# all imports from json file should have models named in the following convention:
+# ModelName i.e. DataLoader, LinearRegression
+
 class Imports(dict):
     def __init__(self):
         super().__init__()
@@ -95,7 +99,6 @@ class Imports(dict):
             for import_name, import_dict in import_dict.items():
                 package_list.append(import_name)
         return package_list
-
 
     def __add__(self, other: 'Imports') -> 'Imports':
         combined = Imports()

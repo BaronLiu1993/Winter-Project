@@ -1,22 +1,24 @@
+
+
 {
-    "hello_world": null,
-    "k_means": {
-      "sklearn.cluster": {
-        "as_name": "cluster"
-      }
+  "hello_world": null,
+  "k_means": {
+    "sklearn.cluster": {
+      "as_name": "cluster"
+    }
+  },
+  "Linear": {
+    "sklearn.linear_model": {
+      "as_name": "linear_model"
+    }
+  },
+  "DataLoader": {
+    "torch.utils.data": {
+      "as_name": "DataLoader"
     },
-    "linear_regression": {
-      "sklearn.linear_model": {
-        "as_name": "linear_model"
-      }
-    },
-    "data loading": {
-      "torch.utils.data": {
-        "as_name": "DataLoader"
-      },
-      "torchvision.transforms": {
-        "as_name": "transforms"
-      }
+    "torchvision.transforms": {
+      "as_name": "transforms"
     }
   }
+}
   
