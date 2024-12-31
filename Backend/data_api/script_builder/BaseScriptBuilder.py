@@ -1,6 +1,6 @@
 from typing import final, Optional
 
-from Backend.scriptBuilder.imports import Imports
+from imports import Imports
 
 class BaseScriptGenerator:
     """

@@ -1,12 +1,13 @@
-try:
-    from Backend.data_api.models_requirements import MODEL_IMPORTS, GENERIC_IMPORTS
-except ImportError as e:
-    print("Missing Imports Requirements")
-    raise e
+import json
 
 class Imports(dict):
     def __init__(self):
         super().__init__()
+
+        with open('imports_utils/generic_imports.json', 'r') as f:
+            GENERIC_IMPORTS = json.load(f)
+        with open('imports_utils/model_imports.json', 'r') as f:
+            MODEL_IMPORTS = json.load(f)
 
         if GENERIC_IMPORTS:
             for import_name, import_dict in GENERIC_IMPORTS.items():

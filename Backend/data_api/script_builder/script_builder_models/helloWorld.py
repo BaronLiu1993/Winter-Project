@@ -1,4 +1,4 @@
-from Backend.scriptBuilder import BaseScriptGenerator
+from Backend.data_api.script_builder.BaseScriptBuilder import BaseScriptGenerator
 
 def main(scriptGenerator: BaseScriptGenerator):
     greeting = scriptGenerator.payload.get("greeting", "Hello, World!")
