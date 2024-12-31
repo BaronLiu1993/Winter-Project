@@ -212,10 +212,15 @@ def process_pipeline(data):
         # Perform topological sort
         sorted_nodes = topological_sorter._topological_sort(adjacency_list, in_degrees)
 
+        imports_script = []
+
         for node_id in sorted_nodes:
             node = nodes[node_id]
             node_type = node["type"]
             node_data = node["data"]
+            
+            
+
             
             # We figure out all of this node’s upstream connections
             # so we know which variables to pass in as input

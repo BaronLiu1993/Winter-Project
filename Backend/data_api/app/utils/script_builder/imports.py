@@ -5,13 +5,13 @@ class Imports(dict):
         super().__init__()
 
         with open('imports_utils/generic_imports.json', 'r') as f:
-            GENERIC_IMPORTS = json.load(f)
-        with open('imports_utils/model_imports.json', 'r') as f:
-            MODEL_IMPORTS = json.load(f)
+            self.general_imports = json.load(f)
+        with open('imports_utils/self.model_imports.json', 'r') as f:
+            self.model_imports = json.load(f)
 
-        if GENERIC_IMPORTS:
-            for import_name, import_dict in GENERIC_IMPORTS.items():
-                self.add_import(import_name, **import_dict)
+        
+        for import_name, import_dict in self.general_imports.items():
+            self.add_import(import_name, **import_dict)
 
     def add_import(self, import_name: str, as_name: str = None, specifier: str = None) -> None:
         """
@@ -59,14 +59,14 @@ class Imports(dict):
         :param model_name: The name of the model s
         :type model_name: str
         """
-        import_dict = MODEL_IMPORTS.get(model_name)
+        import_dict = self.model_imports.get(model_name)
         if import_dict:
             for import_name, import_dict in import_dict.items():
                 self.add_import(import_name, **import_dict)
 
         if args:
             for model_name in args:
-                import_dict = MODEL_IMPORTS.get(model_name)
+                import_dict = self.model_imports.get(model_name)
                 if import_dict:
                     for import_name, import_dict in import_dict.items():
                         self.add_import(import_name, **import_dict)
@@ -83,16 +83,15 @@ class Imports(dict):
         return package_list
 
 
-    @staticmethod
-    def generate_package_list_for_entire_project() -> list:
+    def generate_package_list_for_entire_project(self) -> list:
         """
         Generate a list of packages to install for the entire project
         :return: List of packages
         """
         package_list = []
-        for import_name, import_dict in GENERIC_IMPORTS.items():
+        for import_name, import_dict in self.general_imports.items():
             package_list.append(import_name)
-        for model_name, import_dict in MODEL_IMPORTS.items():
+        for model_name, import_dict in self.model_imports.items():
             for import_name, import_dict in import_dict.items():
                 package_list.append(import_name)
         return package_list
