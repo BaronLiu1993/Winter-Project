@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Lock } from 'lucide-react';
+import { useUser } from '../contexts/UserContext';
 
 interface LoginProps {
     onLogin: (user: object) => void;
@@ -11,6 +12,8 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const { setUser } = useUser();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,12 +32,22 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.error || 'Signup failed');
+                throw new Error(data.error || 'Login failed');
             }
+
+            setUser({
+                email: data.user.email,
+                id: data.user.id
+            });
+
+            localStorage.setItem('user', JSON.stringify({
+                email: data.user.email,
+                id: data.user.id
+            }));
 
             onLogin(data.user);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Signup failed');
+            setError(err instanceof Error ? err.message : 'Login failed');
         } finally {
             setIsLoading(false);
         }

@@ -5,6 +5,7 @@ import { ConnectionProvider } from '../contexts/ConnectionContext';
 import type { AppProps } from "next/app";
 import { BoardSizeProvider } from "../contexts/BoardSizeContext";
 import { NodesProvider } from "../contexts/NodesContext";
+import { UserProvider } from "../contexts/UserContext";
 
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -13,7 +14,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <ConnectionProvider>
         <BoardSizeProvider>
           <NodesProvider>
-            <Component {...pageProps} /> 
+            <UserProvider>  
+              <Component {...pageProps} /> 
+            </UserProvider>
           </NodesProvider>
         </BoardSizeProvider>
       </ConnectionProvider>

@@ -3,6 +3,7 @@ import { NodeTemplate, Node } from '../types/NodeType';
 import { Menu, X, Settings, Code, Database, FileText, Home, User } from 'lucide-react';
 import { useNodes } from '../contexts/NodesContext';
 import { useConnections } from '../contexts/ConnectionContext';
+import { useUser } from '../contexts/UserContext';
 
 interface SidebarProps {
     nodeTemplates: NodeTemplate[];
@@ -15,6 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
 
     const { nodes, setNodes } = useNodes();
     const { connections, setConnections } = useConnections();
+    const { user } = useUser();
 
     const handleAddNode = (template: NodeTemplate) => {
         const newNode: Node = {
@@ -68,8 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
                             <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
                                 <User size={40} className="text-gray-500" />
                             </div>
-                            <h3 className="font-medium">User Name</h3>
-                            <p className="text-sm text-gray-500">user@example.com</p>
+                            <h3 className="font-medium">{user?.email || 'Not logged in'}</h3>
                         </div>
                         <div className="space-y-2 pt-4">
                             <button className="w-full p-2 text-left hover:bg-gray-100 rounded">
@@ -231,6 +232,17 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
                 <div className="absolute bottom-0 left-0 w-full p-4 bg-gray-50 border-t">
                     <div className="text-sm text-gray-500">
                         Drag nodes here to delete
+                    </div>
+                </div>
+            )}
+
+            {currentSection !== 'nodes' && (
+                <div className="absolute bottom-0 left-0 w-full p-4 border-t border-gray-200">
+                    <div className="flex items-center space-x-3">
+                        <User className="w-6 h-6 text-gray-500" />
+                            <div className="text-sm text-gray-600 truncate">
+                                {user?.email || 'Not logged in'}
+                            </div>
                     </div>
                 </div>
             )}

@@ -55,8 +55,8 @@ const Main: React.FC = () => {
     const handleLogin = async (user: object) => {
         // Add your authentication logic here
         // For now, just simulate a successful login
-        console.log(user);
-        // setIsAuthenticated(true);
+        
+        setIsAuthenticated(true);
     };
 
     const handleSignup = (userData: { email: string; id: string }) => {
