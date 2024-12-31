@@ -207,17 +207,20 @@ def process_pipeline(data):
 
         return script_string
 
-        return {
-            'status': 'success',
-            'counts': {
-                'nodes': len(nodes),
-                'connections': len(connections)
-            },
-            'message': f'Received {len(nodes)} nodes and {len(connections)} connections'
-        }
+        
     
     except Exception as e:
         return {
             'status': 'error',
             'message': str(e)
         }
+    
+
+# return {
+#             'status': 'success',
+#             'counts': {
+#                 'nodes': len(nodes),
+#                 'connections': len(connections)
+#             },
+#             'message': f'Received {len(nodes)} nodes and {len(connections)} connections'
+#         }

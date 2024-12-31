@@ -13,7 +13,7 @@ class BaseScriptGenerator:
     """
     def __init__(self, payload: dict):
         self.payload = payload
-        self.imports: Optional[Imports] = None
+        self.imports: Optional[Imports] = Imports()
         self.models_used: Optional[list[str]] = None
         try:
             self.descriptions = self.payload["descriptions"]
@@ -40,21 +40,6 @@ class BaseScriptGenerator:
         if self.descriptions:
             return "\n".join([f'# {description}' for description in self.descriptions]) + "\n"
         return ""
-
-
-    def __add__(self, other: 'BaseScriptGenerator') -> 'BaseScriptGenerator':
-        """
-        Combine two script generators into a single one.
-
-        The raw script is NOT combined, the resulting script would
-        ONLY contain the raw script of first.
-        """
-        combined = BaseScriptGenerator({})
-        combined.imports = self.imports + other.imports
-        combined.models_used = self.models_used + other.models_used
-        combined.descriptions = self.descriptions + other.descriptions
-
-        return combined
 
     @final
     def generate_script(self) -> str:
