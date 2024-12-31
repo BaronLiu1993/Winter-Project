@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..script_builder.process_pipeline import process_pipeline
+from utils.script_builder.process_pipeline import process_pipeline
 
 class ExecutePipelineView(APIView):
     def post(self, request):
