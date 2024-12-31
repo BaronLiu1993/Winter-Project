@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Search, Plus, Globe, Lock } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { fetchAllUsers } from '../services/api';
 
 interface Collaborator {
     email: string;
@@ -27,18 +28,9 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClose, onCr
 
     // Fetch all users when modal opens
     useEffect(() => {
-        const fetchAllUsers = async () => {
-            try {
-                const response = await fetch('http://localhost:8000/api/all-users/');
-                const data = await response.json();
-                setAllUsers(data.users);
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        };
 
         if (isOpen) {
-            fetchAllUsers();
+            fetchAllUsers().then(users => setAllUsers(users));
         }
     }, [isOpen]);
 

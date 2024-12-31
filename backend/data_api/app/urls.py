@@ -1,14 +1,12 @@
 from django.urls import path
-from .views import ExecutePipelineView, SignupView, LoginView, NewProjectView, SearchUsersView, AllUsersView, RecentProjectsView
+from .views import ExecutePipelineView, SignupView, LoginView, NewProjectView, AllUsersView
 
 urlpatterns = [
     path('execute-pipeline/', ExecutePipelineView.as_view(), name='execute-pipeline'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),
     path('new-project/', NewProjectView.as_view(), name='new-project'),
-    path('search-users/', SearchUsersView.as_view(), name='search-users'),
     path('all-users/', AllUsersView.as_view(), name='all-users'),
-    path('recent-projects/', RecentProjectsView.as_view(), name='recent-projects'),
 ] 
 
 #as_view() is a method that converts class-based view into a function based view that takes request and return response

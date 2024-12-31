@@ -40,12 +40,12 @@ export const newProject = async (
     return response.json();
 };
 
-export const getRecentProjects = async (userId: string) => {
-    const response = await fetch(`${API_BASE_URL}/recent-projects/?user_id=${userId}`);
-    
-    if (!response.ok) {
-        throw new Error('Failed to fetch recent projects');
+export const fetchAllUsers = async () => {
+    try {
+        const response = await fetch('http://localhost:8000/api/all-users/');
+        const data = await response.json();
+        return data.users;
+    } catch (error) {
+        console.error('Error fetching users:', error);
     }
-
-    return response.json();
 };
