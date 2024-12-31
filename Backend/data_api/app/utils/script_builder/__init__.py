@@ -14,7 +14,6 @@ def register_script_type(script_type):
         return cls
     return wrapper
 
-@register_script_type("hello_world")
 class HelloWorldScriptGenerator(BaseScriptGenerator):
     """
     A script generator for printing a greeting and adding numbers.
@@ -30,7 +29,6 @@ class HelloWorldScriptGenerator(BaseScriptGenerator):
 
 INDENT: final = "    "
 
-@register_script_type("ModelBuilder")
 class ModelBuilderScriptGenerator(BaseScriptGenerator):
     def __init__(self, payload: dict):
         super().__init__(payload)
@@ -52,7 +50,6 @@ class ModelBuilderScriptGenerator(BaseScriptGenerator):
         """)
 
 
-@register_script_type("DataLoader")
 class DataLoaderScriptGenerator(BaseScriptGenerator):
     def __init__(self, payload: dict):
         super().__init__(payload)
