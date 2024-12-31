@@ -1,5 +1,5 @@
 try:
-    from backend.models_requirements import MODEL_IMPORTS, GENERIC_IMPORTS
+    from Backend.models_requirements import MODEL_IMPORTS, GENERIC_IMPORTS
 except ImportError as e:
     print("Missing Imports Requirements")
     raise e
