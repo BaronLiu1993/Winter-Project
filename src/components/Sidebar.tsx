@@ -11,7 +11,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
-    const [isMenuMode, setIsMenuMode] = useState(false);
+    const [isMenuMode, setIsMenuMode] = useState(true);
     const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('home');
 
     const { nodes, setNodes } = useNodes();

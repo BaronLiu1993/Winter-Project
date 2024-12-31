@@ -162,3 +162,34 @@ class AllUsersView(APIView):
                 {'error': f"Failed to fetch users: {str(e)}"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+class AllProjectsView(APIView):
+    def get(self, request):
+        try:
+            client = MongoClient(settings.MONGODB_URI)
+            db = client.get_database('projects')
+            projects_collection = db.projects
+
+            user_id = request.query_params.get('user_id')
+            if not user_id:
+                return Response({'error': 'User ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Find projects and convert cursor to list
+            projects = list(projects_collection.find({'user_id': user_id}))
+            
+            # Convert ObjectId to string and format the response
+            projects_list = [{
+                'id': str(project['_id']),
+                'name': project['project_name'],
+                'created_at': project['created_at'].isoformat(),
+                'is_public': project.get('is_public', False),
+                'collaborators': project.get('collaborators', [])
+            } for project in projects]
+
+            return Response({'projects': projects_list})
+
+        except Exception as e:
+            return Response(
+                {'error': f"Failed to fetch projects: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
