@@ -8,12 +8,13 @@ import { useUser } from '../contexts/UserContext';
 interface SidebarProps {
     nodeTemplates: NodeTemplate[];
     setCurrentView: (view: 'home' | 'whiteboard') => void;
+    isMenuMode: boolean;
+    setIsMenuMode: (isMenuMode: boolean) => void;
+    currentSection: 'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account';
+    setCurrentSection: (section: 'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account') => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView }) => {
-    const [isMenuMode, setIsMenuMode] = useState(true);
-    const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('home');
-
+const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView, isMenuMode, setIsMenuMode, currentSection, setCurrentSection }) => {
     const { nodes, setNodes } = useNodes();
     const { connections, setConnections } = useConnections();
     const { user } = useUser();

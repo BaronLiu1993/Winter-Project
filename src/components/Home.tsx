@@ -5,20 +5,16 @@ import NewProjectModal from './NewProjectModal';
 import { useUser } from '../contexts/UserContext';
 import { fetchAllProjects } from '../services/api';
 import { Globe, Lock, Users } from 'lucide-react';
+import { Project } from '../types/NodeType';
 
-interface Project {
-    id: string;
-    name: string;
-    is_public: boolean;
-    collaborators: Array<{ email: string; id: string }>;
-    created_at: string;
+interface HomeProps {
+    setIsModalOpen: (isModalOpen: boolean) => void;
+    projects: Project[];
+    setProjects: (projects: Project[]) => void;
 }
 
-const Home: React.FC = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const router = useRouter();
+const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) => {
     const { user } = useUser();
-    const [projects, setProjects] = useState<Project[]>([]);
 
     useEffect(() => {
         if (user) {
@@ -28,17 +24,8 @@ const Home: React.FC = () => {
         }
     }, [user]);
 
-    const handleCreateProject = async (projectName: string, collaborators: any[], isPublic: boolean) => {
-        try {
-            const response = await newProject(user?.id || '', projectName, collaborators, isPublic);
-            if (user) {
-                const updatedProjects = await fetchAllProjects(user.id);
-                setProjects(updatedProjects);
-            }
-            setIsModalOpen(false);
-        } catch (error) {
-            console.error('Failed to create project:', error);
-        }
+    const handleProjectClick = (projectId: string) => {
+        console.log('Project clicked:', projectId);
     };
 
     return (
@@ -55,7 +42,9 @@ const Home: React.FC = () => {
                     <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all duration-200">
                         <div className="flex flex-col items-center text-center">
                             <h3 className="text-lg font-medium text-gray-500 mb-3">Total Projects</h3>
-                            <p className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none mb-3">24</p>
+                            <p className="text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-none mb-3">
+                                {projects.length}
+                            </p>
                             <div className="h-1 w-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full"></div>
                         </div>
                     </div>
@@ -81,7 +70,7 @@ const Home: React.FC = () => {
                     {projects.map(project => (
                         <div 
                             key={project.id}
-                            onClick={() => router.push(`/whiteboard/${project.id}`)}
+                            onClick={() => handleProjectClick(project.id)}
                             className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
                         >
                             <div className="flex justify-between items-start mb-4">
@@ -124,14 +113,7 @@ const Home: React.FC = () => {
                         <p className="text-gray-500">No projects yet. Create your first project!</p>
                     </div>
                 )}
-            </div>
-
-            {/* New project Modal */}
-            <NewProjectModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onCreateProject={handleCreateProject}
-            />
+            </div>          
         </div>
     );
 };
