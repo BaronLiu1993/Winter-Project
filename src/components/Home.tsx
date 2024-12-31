@@ -1,6 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import { newProject } from '../services/api';
+import NewProjectModal from './NewProjectModal';
+import { useUser } from '../contexts/UserContext';
 
 const Home: React.FC = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const router = useRouter();
+    const { user } = useUser();
+
+    const handleCreateProject = async (projectName: string, collaborators: any[], isPublic: boolean) => {
+        try {
+            const response = await newProject(user?.id || '', projectName, collaborators, isPublic);
+
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error('Failed to create project:', error);
+        }
+    };
+
     return (
         <div className="w-full h-full bg-gray-50 p-8">
             <div className="max-w-4xl mx-auto space-y-8">
@@ -30,7 +48,10 @@ const Home: React.FC = () => {
                     <div className="bg-white rounded-xl shadow-sm p-6">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
                         <div className="space-y-3">
-                            <button className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
+                                className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                            >
                                 New Project
                             </button>
                             <button className="w-full p-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
@@ -56,6 +77,12 @@ const Home: React.FC = () => {
                     </div>
                 </div>
             </div>
+            {/* New project Pop up window */}
+            <NewProjectModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onCreateProject={handleCreateProject}
+            />
         </div>
     );
 };

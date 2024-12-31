@@ -20,3 +20,13 @@ class Pipeline(models.Model):
 
     def __str__(self):
         return f"Pipeline created at {self.created_at}"
+    
+class Project(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    project_name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    nodes = models.JSONField(default=list)
+    connections = models.JSONField(default=list)
+
+    def __str__(self):
+        return f"Project {self.project_name} created at {self.created_at}"
