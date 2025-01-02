@@ -11,45 +11,7 @@ import { Project } from '../types/NodeType';
 import NewProjectModal from './NewProjectModal';
 import { newProject } from '../services/api';
 import { fetchAllProjects } from '../services/api';
-
-const nodeTemplates: NodeTemplate[] = [
-    {
-        type: 'inputManager',
-        title: 'Input Manager',
-        inputs: [
-            { name: 'input text', dataType: 'text', label: 'Input Text' }
-        ],
-        outputs: [
-            { name: 'output', dataType: 'text', label: 'Output' },
-            { name: 'output number', dataType: 'text', label: 'Output Number' }
-        ],
-        data: [
-            { name: 'text', dataType: 'text', value: '' },
-            { name: 'csv file', dataType: 'file', value: '' }
-        ],
-        component: BaseNode
-    },
-    {
-        type: 'textProcessor',
-        title: 'Text Processor',
-        inputs: [{ name: 'input', dataType: 'text', label: 'Input Text' }],
-        outputs: [{ name: 'output', dataType: 'text', label: 'Processed Text' }],
-        data: [
-            { name: 'text', dataType: 'text', value: '' },
-        ],
-        component: BaseNode
-    },
-    {
-        type: 'dataClassifier',
-        title: 'Data Classifier',
-        inputs: [{ name: 'data', dataType: 'data', label: 'Input Data' }],
-        outputs: [{ name: 'classes', dataType: 'array', label: 'Classifications' }],
-        data: [
-            { name: 'classes', dataType: 'text', value: '' }
-        ],
-        component: BaseNode
-    }
-];
+import { nodeTemplates } from '../types/NodeType';
 
 
 const Main: React.FC = () => {
@@ -67,7 +29,7 @@ const Main: React.FC = () => {
     //home varaibles
     const [currentView, setCurrentView] = useState<'home' | 'whiteboard'>('home');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [homeProjects, setHomeProjects] = useState<Project[]>([]);
 
 
     const handleLogin = async (user: object) => {
@@ -97,8 +59,8 @@ const Main: React.FC = () => {
             case 'home':
                 return <Home 
                     setIsModalOpen={setIsModalOpen}
-                    projects={projects}
-                    setProjects={setProjects}
+                    projects={homeProjects}
+                    setProjects={setHomeProjects}
                 />;
             case 'whiteboard':
                 return (
@@ -118,7 +80,7 @@ const Main: React.FC = () => {
             const response = await newProject(user?.id || '', projectName, collaborators, isPublic);
             if (user) {
                 const updatedProjects = await fetchAllProjects(user.id);
-                setProjects(updatedProjects);
+                setHomeProjects(updatedProjects);
             }
             setIsModalOpen(false);
         } catch (error) {

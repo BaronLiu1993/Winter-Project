@@ -219,23 +219,44 @@ class DeleteProjectView(APIView):
             )
 
 class OpenWhiteBoardView(APIView):
-    def get(self, request):
+    def post(self, request, project_id):
         try:
-            project_id = request.query_params.get('project_id')
-            if not project_id:
-                return Response({'error': 'Project ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+            user_id = request.data.get('user_id')
+            if not project_id or not user_id:
+                return Response({'error': 'User ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
             client = MongoClient(settings.MONGODB_URI)
             db = client.get_database('projects')
             projects_collection = db.projects
 
             project = projects_collection.find_one({'_id': ObjectId(project_id)})
+           
             if not project:
                 return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+            # Check if user has permission
+            permissions = (
+                user_id in [collaborator['id'] for collaborator in project.get('collaborators', [])] or 
+                user_id == project.get('user_id') or 
+                project.get('is_public', False)
+            )
 
-            return Response({'project': project})
+            if not permissions:
+                return Response({'error': 'No permission to access this project'}, status=status.HTTP_403_FORBIDDEN)
+            
+            project_client_data = {
+                'id': str(project['_id']),
+                'name': project['project_name'],
+                'created_at': project['created_at'].isoformat(),
+                'is_public': project.get('is_public', False),
+                'collaborators': project.get('collaborators', []),
+                'nodes': project.get('nodes', []),
+                'connections': project.get('connections', [])
+            }
+            return Response({'project': project_client_data, 'permissions': permissions})
 
         except Exception as e:
+            print(f"Error in OpenWhiteBoardView: {str(e)}")
             return Response(
                 {'error': f"Failed to open whiteboard: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

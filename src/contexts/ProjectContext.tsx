@@ -12,15 +12,7 @@ export const ProjectContext = createContext<ProjectContextType>({
 });
 
 export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [project, setProject] = useState<Project | null>({
-        id: "example-project",
-        name: "Example Project",
-        nodes: [],
-        connections: [],
-        collaborators: [],
-        is_public: false,
-        created_at: new Date().toISOString(),
-    });
+    const [project, setProject] = useState<Project | null>(null);
 
     return (
         <ProjectContext.Provider value={{ project, setProject }}>
@@ -29,4 +21,4 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     );
 };
 
-export const useProject = () => useContext(ProjectContext);
+export const useProject = () => useContext(ProjectContext); 

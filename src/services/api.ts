@@ -77,13 +77,20 @@ export const deleteProject = async (project_id: string) => {
     }
 };
 
-export const openWhiteBoard = async (project_id: string) => {
+export const openWhiteBoard = async (user_id: string, project_id: string) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/whiteboard/${project_id}`);
-        //if not found, return null
+        const response = await fetch(`${API_BASE_URL}/whiteboard/${project_id}/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id, project_id }),
+        });
         if (response.status === 404) {
             return null;
         }
+        if (!response.ok) {
+            throw new Error('Failed to fetch project');
+        }
+
         const data = await response.json();
         return data.project;
     } catch (error) {
