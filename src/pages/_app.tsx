@@ -6,20 +6,19 @@ import type { AppProps } from "next/app";
 import { BoardSizeProvider } from "../contexts/BoardSizeContext";
 import { NodesProvider } from "../contexts/NodesContext";
 import { UserProvider } from "../contexts/UserContext";
+import { ProjectProvider } from "../contexts/ProjectContext";
 
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <GlobalZIndexProvider>
-      <ConnectionProvider>
         <BoardSizeProvider>
-          <NodesProvider>
             <UserProvider>  
-              <Component {...pageProps} /> 
+              <ProjectProvider>
+                <Component {...pageProps} /> 
+              </ProjectProvider>
             </UserProvider>
-          </NodesProvider>
         </BoardSizeProvider>
-      </ConnectionProvider>
     </GlobalZIndexProvider>
   );
 }

@@ -218,3 +218,25 @@ class DeleteProjectView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class OpenWhiteBoardView(APIView):
+    def get(self, request):
+        try:
+            project_id = request.query_params.get('project_id')
+            if not project_id:
+                return Response({'error': 'Project ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            client = MongoClient(settings.MONGODB_URI)
+            db = client.get_database('projects')
+            projects_collection = db.projects
+
+            project = projects_collection.find_one({'_id': ObjectId(project_id)})
+            if not project:
+                return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({'project': project})
+
+        except Exception as e:
+            return Response(
+                {'error': f"Failed to open whiteboard: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

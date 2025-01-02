@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NodeTemplate, Node } from '../types/NodeType';
 import { Menu, X, Settings, Code, Database, FileText, Home, User } from 'lucide-react';
-import { useNodes } from '../contexts/NodesContext';
+import { useProject } from '../contexts/ProjectContext';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useUser } from '../contexts/UserContext';
 
@@ -15,7 +15,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView, isMenuMode, setIsMenuMode, currentSection, setCurrentSection }) => {
-    const { nodes, setNodes } = useNodes();
+    const { project, setProject } = useProject();
     const { connections, setConnections } = useConnections();
     const { user } = useUser();
 
@@ -40,8 +40,12 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView, isMenu
             })),
             title: template.title,
             data: template.data
-        };
-        setNodes(prev => [...prev, newNode]);
+        };        
+        setProject(prev => prev ? {
+            ...prev,
+            nodes: [...prev.nodes, newNode]
+        } : null);
+        console.log(project);
     };
 
     const renderContent = () => {

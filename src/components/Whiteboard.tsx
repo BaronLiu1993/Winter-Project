@@ -5,8 +5,10 @@ import { useConnections } from '../contexts/ConnectionContext';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { useBoardSize } from '../contexts/BoardSizeContext';
 import { executePipeline } from '../services/api';
+import { useProject } from '../contexts/ProjectContext';
+
+
 import Home from './Home';
-import { useNodes } from '../contexts/NodesContext';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -20,9 +22,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     setCurrentView 
 }) => {
     const { boardSize } = useBoardSize();
+    const { project, setProject } = useProject();
 
-    const { nodes, setNodes } = useNodes();
-    const { connections, setConnections } = useConnections();
 
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [dragConnectionInfo, setDragConnectionInfo] = useState<{
@@ -109,6 +110,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     }, [dragPosition, boardSize]); // Add dependencies
 
     const handlePortConnect = (nodeId: string, portId: string, portType: 'input' | 'output', position: Position) => {
+        if (!project) return;
+        
         if (!dragConnectionInfo) {
             setDragConnectionInfo({ 
                 sourceNodeId: nodeId, 
@@ -122,7 +125,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
             setDragConnectionInfo(null);
             return;
         }
-        if (connections.some(conn => {
+        if (project.connections.some(conn => {
             return (
                 conn.sourcePortId === dragConnectionInfo.sourcePortId 
                 && conn.sourceNodeId === dragConnectionInfo.sourceNodeId
@@ -142,15 +145,18 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
             ? [dragConnectionInfo.sourceNodeId, nodeId]
             : [nodeId, dragConnectionInfo.sourceNodeId];
         
-        setConnections(prev => [...prev, {
-            id: `conn-${connections.length + 1}`,
-            sourceNodeId,
-            sourcePortId: sourceId,
-            targetNodeId,
-            targetPortId: targetId
-        }]);
+        setProject(prev => prev ? {
+            ...prev,
+            connections: [...prev.connections, {
+                id: `conn-${prev.connections.length + 1}`,
+                sourceNodeId,
+                sourcePortId: sourceId,
+                targetNodeId,
+                targetPortId: targetId
+            }]
+        } : null);
         setTimeout(() => {
-            const connectionElement = document.getElementById(`conn-${connections.length + 1}`);
+            const connectionElement = document.getElementById(`conn-${project.connections.length + 1}`);
             if (connectionElement) {
                 connectionElement.style.zIndex = (GlobalZIndex + 2).toString();
             }
@@ -160,11 +166,14 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     };
 
     const updateNodePosition = (nodeId: string, newPosition: Position) => {
-        setNodes(prev => prev.map(node => 
-            node.id === nodeId 
-                ? { ...node, position: newPosition }
-                : node
-        ));
+        setProject(prev => prev ? {
+            ...prev,
+            nodes: prev.nodes.map((node: Node) => 
+                node.id === nodeId 
+                    ? { ...node, position: newPosition }
+                    : node
+            )
+        } : null);
     };
 
     const getPortPosition = (el: HTMLElement): Position => {
@@ -177,7 +186,13 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     };
 
     const handleDeleteNode = (nodeId: string) => {
-        setNodes(prev => prev.filter(n => n.id !== nodeId));
+        setProject(prev => prev ? {
+            ...prev,
+            nodes: prev.nodes.filter(n => n.id !== nodeId),
+            connections: prev.connections.filter(
+                c => c.sourceNodeId !== nodeId && c.targetNodeId !== nodeId
+            )
+        } : null);
     };
 
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -187,6 +202,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                 x: e.clientX - dragPosition.x,
                 y: e.clientY - dragPosition.y
             };
+            console.log(project);
+            
         }
     };
 
@@ -205,7 +222,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
 
     const handleExecute = async () => {
         try {
-            const result = await executePipeline(nodes, connections);
+            const result = await executePipeline(project?.nodes || [], project?.connections || []);
             setExecutionResult(
                 `Nodes: ${result.counts.nodes}, Connections: ${result.counts.connections}`
             );
@@ -237,9 +254,9 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                         backgroundSize: '40px 40px'
                     }}
                 >
-                    {connections.map(conn => {
-                        const sourceNode = nodes.find(n => n.id === conn.sourceNodeId);
-                        const targetNode = nodes.find(n => n.id === conn.targetNodeId);
+                    {project?.connections.map(conn => {
+                        const sourceNode = project?.nodes.find(n => n.id === conn.sourceNodeId);
+                        const targetNode = project?.nodes.find(n => n.id === conn.targetNodeId);
                         if (!sourceNode || !targetNode) return null;
 
                         const sourcePort = sourceNode.outputs.find(p => p.id === conn.sourcePortId);
@@ -260,7 +277,10 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                                 start={sourcePos}
                                 end={targetPos}
                                 onDelete={() => {
-                                    setConnections(prev => prev.filter(c => c.id !== conn.id));
+                                    setProject(prev => prev ? {
+                                        ...prev,
+                                        connections: prev.connections.filter(c => c.id !== conn.id)
+                                    } : null);
                                 }}
                                 onAddNode={() => {
                                     console.log('Add node between connection:', conn);
@@ -288,7 +308,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                         />
                     )}
 
-                    {nodes.map(node => {
+                    {project?.nodes.map(node => {
                         const Template = nodeTemplates.find(t => t.type === node.type)?.component;
                         return Template ? (
                             <Template

@@ -6,6 +6,8 @@ export interface Project {
     is_public: boolean;
     collaborators: Array<{ email: string; id: string }>;
     created_at: string;
+    nodes: Node[];
+    connections: Connection[];
 }
 
 export interface Position {

@@ -76,3 +76,18 @@ export const deleteProject = async (project_id: string) => {
         return [];
     }
 };
+
+export const openWhiteBoard = async (project_id: string) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/whiteboard/${project_id}`);
+        //if not found, return null
+        if (response.status === 404) {
+            return null;
+        }
+        const data = await response.json();
+        return data.project;
+    } catch (error) {
+        console.error('Error opening whiteboard:', error);
+        return null;
+    }
+};
