@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ExecutePipelineView, SignupView, LoginView, NewProjectView, AllUsersView, AllProjectsView, DeleteProjectView, OpenWhiteBoardView
+from .views import ExecutePipelineView, SignupView, LoginView, NewProjectView, AllUsersView, AllProjectsView, DeleteProjectView, OpenWhiteBoardView, UploadWhiteBoardView
 
 urlpatterns = [
     path('execute-pipeline/', ExecutePipelineView.as_view(), name='execute-pipeline'),
@@ -10,6 +10,7 @@ urlpatterns = [
     path('all-projects/', AllProjectsView.as_view(), name='all-projects'),
     path('delete-project/', DeleteProjectView.as_view(), name='delete-project'),
     path('whiteboard/<str:project_id>/', OpenWhiteBoardView.as_view(), name='open-whiteboard'),
+    path('upload-whiteboard/', UploadWhiteBoardView.as_view(), name='upload-whiteboard'),
 ] 
 
 #as_view() is a method that converts class-based view into a function based view that takes request and return response

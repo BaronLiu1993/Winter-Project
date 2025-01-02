@@ -261,3 +261,45 @@ class OpenWhiteBoardView(APIView):
                 {'error': f"Failed to open whiteboard: {str(e)}"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class UploadWhiteBoardView(APIView):
+    def post(self, request):
+        try:
+            client = MongoClient(settings.MONGODB_URI)
+            db = client.get_database('projects')
+            projects_collection = db.projects
+
+            project = request.data.get('project')
+            user_id = request.data.get('user_id')
+            
+            if not project or not user_id:
+                return Response({'error': 'Project and user ID are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Convert project data to MongoDB format
+            project_data = {
+                'project_name': project['name'],
+                'is_public': project.get('is_public', False),
+                'collaborators': project.get('collaborators', []),
+                'nodes': project.get('nodes', []),
+                'connections': project.get('connections', []),
+                'user_id': user_id,
+                'updated_at': datetime.now()
+            }
+            
+            # Update the project in MongoDB
+            result = projects_collection.update_one(
+                {'_id': ObjectId(project['id'])}, 
+                {'$set': project_data}
+            )
+
+            if result.modified_count == 0:
+                return Response({'error': 'Project not found or no changes made'}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({'message': 'Project saved successfully'}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            print(f"Error in UploadWhiteBoardView: {str(e)}")
+            return Response(
+                {'error': f"Failed to save project: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

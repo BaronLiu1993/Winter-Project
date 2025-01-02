@@ -1,3 +1,5 @@
+import { Project } from "../types/ProjectType";
+
 const API_BASE_URL = 'http://localhost:8000/api';
 
 export const executePipeline = async (nodes: any[], connections: any[]) => {
@@ -95,6 +97,27 @@ export const openWhiteBoard = async (user_id: string, project_id: string) => {
         return data.project;
     } catch (error) {
         console.error('Error opening whiteboard:', error);
+        return null;
+    }
+};
+
+
+export const uploadWhiteBoard = async (user_id: string, project: Project) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/upload-whiteboard/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id, project }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save project');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error saving whiteboard:', error);
         return null;
     }
 };

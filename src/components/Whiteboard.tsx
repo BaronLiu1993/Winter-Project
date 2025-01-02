@@ -4,11 +4,12 @@ import { ConnectionArrow } from './ConnectionArrow';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { useBoardSize } from '../contexts/BoardSizeContext';
-import { executePipeline } from '../services/api';
+import { executePipeline, uploadWhiteBoard } from '../services/api';
 import { useProject } from '../contexts/ProjectContext';
 
 
 import Home from './Home';
+import { useUser } from '../contexts/UserContext';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -23,8 +24,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
 }) => {
     const { boardSize } = useBoardSize();
     const { project, setProject } = useProject();
-
-
+    const { user } = useUser();
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [dragConnectionInfo, setDragConnectionInfo] = useState<{
         sourceNodeId: string;
@@ -231,6 +231,14 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
             setExecutionResult('Execution failed');
         }
     };
+
+    const handleSaveProject = async () => {
+        if (!project || !user) return;
+
+        const response = await uploadWhiteBoard(user.id, project);
+        console.log(response);
+    };
+
     return (
         <div className="w-full h-full bg-gray-100 whiteboard">
             <div id="view_window" className="fixed w-full h-full overflow-hidden">
@@ -323,17 +331,23 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                     })}
                 </div>
 
-                <div className="absolute bottom-4 right-4 flex items-center gap-4">
+                <div className="absolute bottom-4 right-4 flex flex-col gap-2">
                     {executionResult && (
                         <div className="bg-white px-4 py-2 rounded-lg shadow text-gray-700">
                             {executionResult}
                         </div>
                     )}
                     <button
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                        className="px-6 py-2.5 bg-blue-500 text-white font-medium rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-200"
+                        onClick={handleSaveProject}
+                    >
+                        Save
+                    </button>
+                    <button
+                        className="px-6 py-2.5 bg-green-500 text-white font-medium rounded-lg shadow-md hover:bg-green-600 transition-colors duration-200"
                         onClick={handleExecute}
                     >
-                        Execute Pipeline
+                        Execute
                     </button>
                 </div>
             </div>
