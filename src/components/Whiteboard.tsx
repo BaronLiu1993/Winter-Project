@@ -6,10 +6,11 @@ import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { useBoardSize } from '../contexts/BoardSizeContext';
 import { executePipeline, uploadWhiteBoard } from '../services/api';
 import { useProject } from '../contexts/ProjectContext';
-
+import ErrorPanel, { Error } from './ErrorPanel';
 
 import Home from './Home';
 import { useUser } from '../contexts/UserContext';
+import { X } from 'lucide-react';
 
 interface WhiteboardProps {
     nodeTemplates: NodeTemplate[];
@@ -43,6 +44,11 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'success' | 'error' | ''>('');
 
+    // Add new state for errors
+    const [errors, setErrors] = useState<Error[]>([]);
+
+    // Add state for error panel visibility
+    const [isErrorPanelVisible, setIsErrorPanelVisible] = useState(true);
 
     useEffect(() => {
 
@@ -251,6 +257,15 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         }
     };
 
+    // Test function to add errors (you can remove this later)
+    const addTestError = () => {
+        setErrors(prev => [...prev, {
+            id: Date.now().toString(),
+            message: `Test error ${prev.length + 1}`,
+            timestamp: Date.now()
+        }]);
+    };
+
     const handleSaveProject = async () => {
         if (!project || !user) return;
 
@@ -260,26 +275,20 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         try {
             const response = await uploadWhiteBoard(user.id, project);
             setSaveStatus('success');
-            
-            // Reset status after 2 seconds
-            setTimeout(() => {
-                setSaveStatus('');
-            }, 2000);
-
+            setTimeout(() => setSaveStatus(''), 2000);
         } catch (error) {
             console.error('Failed to save project:', error);
             setSaveStatus('error');
-            
-            // Reset error status after 2 seconds
-            setTimeout(() => {
-                setSaveStatus('');
-            }, 2000);
-            
+            setErrors(prev => [...prev, {
+                id: Date.now().toString(),
+                message: 'Failed to save project',
+                timestamp: Date.now()
+            }]);
+            setTimeout(() => setSaveStatus(''), 2000);
         } finally {
             setIsSaving(false);
         }
     };
-
 
     return (
         <div className="w-full h-full bg-gray-100 whiteboard">
@@ -375,7 +384,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                     })}
                 </div>
 
-                <div className="absolute bottom-4 right-4 flex flex-col gap-2">
+                <div className={`absolute right-4 flex flex-col gap-2 z-[60] transition-all duration-200
+                    ${isErrorPanelVisible ? 'bottom-52' : 'bottom-4'}`}>
                     {executionResult && (
                         <div className="bg-white px-4 py-2 rounded-lg shadow text-gray-700">
                             {executionResult}
@@ -409,6 +419,22 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                     </button>
                 </div>
             </div>
+
+            {/* Add this button temporarily to test errors */}
+            <button
+                className="absolute top-4 right-4 px-4 py-2 bg-red-500 text-white rounded"
+                onClick={addTestError}
+            >
+                Add Test Error
+            </button>
+
+            <ErrorPanel 
+                errors={errors}
+                onClearAll={() => setErrors([])}
+                onDismiss={(id) => setErrors(prev => prev.filter(e => e.id !== id))}
+                isVisible={isErrorPanelVisible}
+                setIsVisible={setIsErrorPanelVisible}
+            />
         </div>
     );
 };
