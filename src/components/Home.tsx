@@ -55,7 +55,6 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
     };
 
     const handleEditProject = () => {
-        console.log('Edit project:', contextMenu.projectId);
         setContextMenu({ ...contextMenu, show: false });
     };
 
