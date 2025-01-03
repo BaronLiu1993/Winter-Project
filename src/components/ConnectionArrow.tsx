@@ -5,6 +5,7 @@ interface ConnectionArrowProps {
     id: string;
     start: Position;
     end: Position;
+    ZIndexValue: number;
     isTemp?: boolean;
     startColor: string;
     endColor: string;
@@ -12,7 +13,7 @@ interface ConnectionArrowProps {
     onAddNode?: () => void;
 }
 
-export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end, isTemp, startColor, endColor, onDelete, onAddNode }) => {
+export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end, ZIndexValue, isTemp, startColor, endColor, onDelete, onAddNode }) => {
     const [showMenu, setShowMenu] = useState(false);
     const midX = (start.x + end.x) / 2;
     const midY = (start.y + end.y) / 2;
@@ -39,7 +40,7 @@ export const ConnectionArrow: React.FC<ConnectionArrowProps> = ({ id, start, end
         <svg 
             id={id}
             className="absolute inset-0 w-full h-full" 
-            style={{ zIndex: id === "-1" ? 9999 : 1, pointerEvents: 'none', userSelect: 'none' }}
+            style={{ zIndex: id === "-1" ? 9999 : ZIndexValue, pointerEvents: 'none', userSelect: 'none' }}
         >
             <defs>
                 <linearGradient 

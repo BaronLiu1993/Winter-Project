@@ -3,15 +3,16 @@ import { NodeComponentProps, Position } from '../types/NodeType';
 import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useBoardSize } from '../contexts/BoardSizeContext';
+import { useProject } from '../contexts/ProjectContext';
 
 export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, isSelected, onClick, handleDelete }) => {
     const [position, setPosition] = useState(node.position);
     const [isDragging, setIsDragging] = useState(false);
-    const dragOffset = useRef<Position>({ x: 0, y: 0 });
+    const dragOffset = useRef<Position>({ x: 0, y: 0, z: 0 });
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();
-    const [zIndex, setZIndex] = useState(GlobalZIndex);
     const { boardSize } = useBoardSize();
-    const { connections, setConnections } = useConnections();
+    
+    const { project, setProject } = useProject();
 
     const [showContextMenu, setShowContextMenu] = useState<{ x: number; y: number } | null>(null);
 
@@ -21,25 +22,32 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
 
         dragOffset.current = {
             x: e.clientX - position.x,
-            y: e.clientY - position.y
+            y: e.clientY - position.y,
+            z: 0
         };
 
-        setGlobalZIndex(GlobalZIndex + 2);
-        setZIndex(1000);
-        connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
-                   .forEach(connection => {
-                        const element = document.getElementById(connection.id);
-                        if (element) {
-                            element.style.zIndex = (1001).toString();
-                        }
-                    });
+
+        setPosition(prev => ({ ...prev, z: 9999 }));
+
+        setProject(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                connections: prev.connections.map(conn => 
+                    (conn.sourceNodeId === node.id || conn.targetNodeId === node.id)
+                        ? { ...conn, z: 10000 }  // Keep connections just below the node
+                        : conn
+                )
+            };
+        });
     };
 
     const handleMouseMove = (e: MouseEvent) => {
         if (!isDragging) return;
         const newPosition = {
             x: e.clientX - dragOffset.current.x,
-            y: e.clientY - dragOffset.current.y
+            y: e.clientY - dragOffset.current.y,
+            z: 9999
         };
 
         // Check if cursor is over sidebar
@@ -79,17 +87,37 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
     };
 
     const handleMouseUp = (e: MouseEvent) => {
-        setZIndex(GlobalZIndex);
+        setPosition(prev => ({ ...prev, z: GlobalZIndex }));
 
         
 
-        connections.filter(connection => connection.sourceNodeId === node.id || connection.targetNodeId === node.id)
-                   .forEach(connection => {
-                       const element = document.getElementById(connection.id);
-                       if (element) {
-                           element.style.zIndex = (GlobalZIndex + 1).toString();
-                       }
-         });
+        setProject(prev => {
+            if (!prev) return prev;
+            return {
+                ...prev,
+                nodes: prev.nodes.map(tmp_node => {
+                    if(tmp_node.id === node.id){
+                        return {
+                            ...tmp_node,
+                            position: {
+                                ...tmp_node.position,
+                                z: GlobalZIndex
+                            }
+                        }
+                    }
+                    return tmp_node;
+                }),
+                connections: prev.connections.map(conn => {
+                    if(conn.sourceNodeId === node.id || conn.targetNodeId === node.id){
+                        return {
+                            ...conn,
+                            z: GlobalZIndex + 1
+                        }
+                    }
+                    return conn;
+                })
+            }
+        })
 
         const sidebar = document.querySelector('.sidebar');
         if (sidebar) {
@@ -102,9 +130,15 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
             );
 
             if (isOverSidebar) {
-                setConnections(prev => prev.filter(conn => 
-                    conn.sourceNodeId !== node.id && conn.targetNodeId !== node.id
-                ));
+                setProject(prev => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        connections: prev.connections.filter(conn => 
+                            conn.sourceNodeId !== node.id && conn.targetNodeId !== node.id
+                        )
+                    }
+                })
                 handleDelete();
             }
         }
@@ -127,7 +161,8 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
         
         return {
             x: rect.left - canvas.left + rect.width / 2,
-            y: rect.top - canvas.top + rect.height / 2
+            y: rect.top - canvas.top + rect.height / 2,
+            z: 0
         };
     };
 
@@ -173,7 +208,7 @@ export const BaseNode: React.FC<NodeComponentProps> = ({ node, onPortConnect, is
                 transform: `translate(${position.x}px, ${position.y}px)`,
                 minWidth: '280px',
                 userSelect: 'none',
-                zIndex: zIndex,
+                zIndex: position.z,
                 transition: 'background-color 200ms ease-in-out, box-shadow 200ms ease-in-out, border-color 200ms ease-in-out'
             }}
             onMouseDown={handleMouseDown}

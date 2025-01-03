@@ -14,6 +14,7 @@ export interface Project {
 export interface Position {
     x: number;
     y: number;
+    z: number;
 }
 
 export interface Port {
@@ -40,6 +41,7 @@ export interface Connection {
     sourcePortId: string;
     targetNodeId: string;
     targetPortId: string;
+    z: number;
 }
 
 export interface NodeData {

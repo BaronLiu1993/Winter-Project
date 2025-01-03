@@ -32,12 +32,31 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         sourceType: 'input' | 'output';
     } | null>(null);
     const canvasRef = useRef<HTMLDivElement>(null);
-    const [cursorPosition, setCursorPosition] = useState<Position>({ x: 0, y: 0 });
+    const [cursorPosition, setCursorPosition] = useState<Position>({ x: 0, y: 0, z: 0 });
     const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
     const dragStart = useRef({ x: 0, y: 0 });
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
     const [executionResult, setExecutionResult] = useState<string>('');
+
+
+    useEffect(() => {
+
+        if (!project) return;
+        // Get all z values from nodes and connections
+        const allZValues = [
+            ...project.nodes.map(node => node.position.z),
+            ...project.connections.map(conn => conn.z)
+        ];
+
+        // Find the highest z value, default to 1 if no values found
+        const highestZ = allZValues.length > 0 
+            ? Math.max(...allZValues) 
+            : 1;
+
+        // Set global z-index to highest value
+        setGlobalZIndex(highestZ);
+    }, [project]);
 
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
@@ -45,7 +64,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                 const rect = canvasRef.current.getBoundingClientRect();
                 setCursorPosition({
                     x: e.clientX - rect.left,
-                    y: e.clientY - rect.top
+                    y: e.clientY - rect.top,
+                    z: 0
                 });
             }
         };  
@@ -148,20 +168,15 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         setProject(prev => prev ? {
             ...prev,
             connections: [...prev.connections, {
-                id: `conn-${prev.connections.length + 1}`,
+                id: `conn-${Date.now()}`,
                 sourceNodeId,
                 sourcePortId: sourceId,
                 targetNodeId,
-                targetPortId: targetId
+                targetPortId: targetId,
+                z: GlobalZIndex + 1
             }]
         } : null);
-        setTimeout(() => {
-            const connectionElement = document.getElementById(`conn-${project.connections.length + 1}`);
-            if (connectionElement) {
-                connectionElement.style.zIndex = (GlobalZIndex + 2).toString();
-            }
-            setGlobalZIndex(GlobalZIndex + 2);
-        }, 10);
+      
         setDragConnectionInfo(null);
     };
 
@@ -181,7 +196,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         const canvas = canvasRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
         return {
             x: rect.left - canvas.left + rect.width / 2,
-            y: rect.top - canvas.top + rect.height / 2
+            y: rect.top - canvas.top + rect.height / 2,
+            z: 0
         };
     };
 
@@ -237,6 +253,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         const response = await uploadWhiteBoard(user.id, project);
     };
 
+
     return (
         <div className="w-full h-full bg-gray-100 whiteboard">
             <div id="view_window" className="fixed w-full h-full overflow-hidden">
@@ -280,6 +297,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                             <ConnectionArrow
                                 key={conn.id}
                                 id={conn.id}
+                                ZIndexValue={conn.z}
                                 start={sourcePos}
                                 end={targetPos}
                                 onDelete={() => {
@@ -301,11 +319,12 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                         <ConnectionArrow
                             key="temp-connection"
                             id="-1"
+                            ZIndexValue={0}
                             start={(() => {
                                 const sourceEl = document.querySelector(
                                     `[data-port-id="${dragConnectionInfo.sourcePortId}"][data-port-type="${dragConnectionInfo.sourceType}"]`
                                 );
-                                return sourceEl ? getPortPosition(sourceEl as HTMLElement) : { x: 0, y: 0 };
+                                return sourceEl ? getPortPosition(sourceEl as HTMLElement) : { x: 0, y: 0, z: 0 };
                             })()}
                             end={cursorPosition}
                             isTemp={true}

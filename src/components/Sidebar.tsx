@@ -5,7 +5,7 @@ import { useProject } from '../contexts/ProjectContext';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useUser } from '../contexts/UserContext';
 import { useRouter } from 'next/router';
-
+import { useGlobalZIndex } from '../contexts/GlobalZIndexContext';
 interface SidebarProps {
     nodeTemplates: NodeTemplate[];
     isHome: boolean;
@@ -20,12 +20,14 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, isHome, isMenuMode, se
     const { connections, setConnections } = useConnections();
     const { user } = useUser();
     const router = useRouter();
-    
+
+    const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();
+
     const handleAddNode = (template: NodeTemplate) => {
         const newNode: Node = {
             id: `node-${Date.now()}`,
             type: template.type,
-            position: { x: 200, y: 100 },
+            position: { x: 200, y: 100, z: GlobalZIndex },
             inputs: template.inputs.map(input => ({
                 id: `${input.name}-${Date.now()}`,
                 type: 'input' as const,
@@ -47,7 +49,8 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, isHome, isMenuMode, se
             ...prev,
             nodes: [...prev.nodes, newNode]
         } : null);
-        console.log(project);
+        
+        setGlobalZIndex(GlobalZIndex + 1);
     };
 
     const renderContent = () => {
