@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, Lock } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { checkLogin } from '../services/auth';
 
 interface LoginProps {
     onLogin: (user: object) => void;
@@ -21,19 +22,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSignupClick }) => {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:8000/api/login/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Login failed');
-            }
+            const data = await checkLogin(email, password);
 
             setUser({
                 email: data.user.email,

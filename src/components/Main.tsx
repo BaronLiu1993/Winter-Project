@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NodeTemplate } from '../types/NodeType';
 import { BaseNode } from '../components/BaseNode';
 import Whiteboard from '../components/Whiteboard';
@@ -16,7 +16,7 @@ import { nodeTemplates } from '../types/NodeType';
 
 const Main: React.FC = () => {
     //user varaibles
-    const { user } = useUser();
+    const { user, setUser } = useUser();
 
     //authentication varaibles
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +31,13 @@ const Main: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [homeProjects, setHomeProjects] = useState<Project[]>([]);
 
+    useEffect(() => {
+        if (localStorage.getItem('user')) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            setUser(user);
+            setIsAuthenticated(true);
+        }
+    }, []);
 
     const handleLogin = async (user: object) => {
         // Add your authentication logic here
@@ -53,27 +60,6 @@ const Main: React.FC = () => {
             />
         );
     }
-
-    const renderMainComponent = (currentView: 'home' | 'whiteboard') => {
-        switch (currentView) {
-            case 'home':
-                return <Home 
-                    setIsModalOpen={setIsModalOpen}
-                    projects={homeProjects}
-                    setProjects={setHomeProjects}
-                />;
-            case 'whiteboard':
-                return (
-                    <Whiteboard 
-                        nodeTemplates={nodeTemplates}
-                        onExecute={(nodes, connections) => console.log('Executing:', { nodes, connections })}
-                        setCurrentView={setCurrentView}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
 
     const handleCreateProject = async (projectName: string, collaborators: any[], isPublic: boolean) => {
         try {

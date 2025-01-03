@@ -16,11 +16,19 @@ const WhiteboardPage: React.FC = () => {
     const router = useRouter();
     const { project_id } = router.query;
     const { project, setProject } = useProject();
-    const { user } = useUser();
+    const { user, setUser } = useUser();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isSignup, setIsSignup] = useState(false);
     const [isMenuMode, setIsMenuMode] = useState(false);
     const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('nodes');
+
+    useEffect(() => {
+        if (localStorage.getItem('user')) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            setUser(user);
+            setIsAuthenticated(true);
+        }
+    }, []);
 
     useEffect(() => {
         if (user && project_id) {
