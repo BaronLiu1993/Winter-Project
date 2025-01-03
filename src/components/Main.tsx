@@ -83,6 +83,8 @@ const Main: React.FC = () => {
                 setHomeProjects(updatedProjects);
             }
             setIsModalOpen(false);
+            console.log(response);
+            return response;
         } catch (error) {
             console.error('Failed to create project:', error);
         }
@@ -100,7 +102,7 @@ const Main: React.FC = () => {
             />
 
             <Home 
-                    setIsModalOpen={setIsModalOpen}
+                setIsModalOpen={setIsModalOpen}
                 projects={homeProjects}
                 setProjects={setHomeProjects}
             />

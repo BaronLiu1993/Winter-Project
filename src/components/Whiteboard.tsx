@@ -202,7 +202,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                 x: e.clientX - dragPosition.x,
                 y: e.clientY - dragPosition.y
             };
-            console.log(project);
             
         }
     };
@@ -236,7 +235,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         if (!project || !user) return;
 
         const response = await uploadWhiteBoard(user.id, project);
-        console.log(response);
     };
 
     return (

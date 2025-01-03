@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Search, Plus, Globe, Lock } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { fetchAllUsers } from '../services/api';
+import router from 'next/router';
 
 interface Collaborator {
     email: string;
@@ -11,7 +12,7 @@ interface Collaborator {
 interface NewProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onCreateProject: (projectName: string, collaborators: Collaborator[], isPublic: boolean) => void;
+    onCreateProject: (projectName: string, collaborators: Collaborator[], isPublic: boolean) => Promise<{ project_id: string }>;
 }
 
 const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClose, onCreateProject }) => {
@@ -72,10 +73,17 @@ const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClose, onCr
         if (!projectName.trim()) return;
 
         setIsLoading(true);
+        let response: { project_id: string } | undefined;
         try {
-            await onCreateProject(projectName, selectedCollaborators, isPublic);
+            response = await onCreateProject(projectName, selectedCollaborators, isPublic);
+        } catch (error) {
+            console.error("Failed to create project:", error);
+            // Handle the error appropriately, e.g., show a notification to the user
         } finally {
             setIsLoading(false);
+            if (response && response.project_id) {
+                router.push(`/whiteboard/${response.project_id}`);
+            }
         }
     };
 
