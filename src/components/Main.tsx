@@ -92,14 +92,18 @@ const Main: React.FC = () => {
         <div className="w-full h-screen bg-gray-100 whiteboard">
             <Sidebar 
                 nodeTemplates={nodeTemplates} 
-                setCurrentView={setCurrentView}
+                isHome={true}
                 isMenuMode={isMenuMode}
                 setIsMenuMode={setIsMenuMode}
                 currentSection={currentSection}
                 setCurrentSection={setCurrentSection}
             />
 
-            {renderMainComponent(currentView)}
+            <Home 
+                    setIsModalOpen={setIsModalOpen}
+                projects={homeProjects}
+                setProjects={setHomeProjects}
+            />
 
             <NewProjectModal
                 isOpen={isModalOpen}

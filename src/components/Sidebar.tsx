@@ -4,21 +4,23 @@ import { Menu, X, Settings, Code, Database, FileText, Home, User } from 'lucide-
 import { useProject } from '../contexts/ProjectContext';
 import { useConnections } from '../contexts/ConnectionContext';
 import { useUser } from '../contexts/UserContext';
+import { useRouter } from 'next/router';
 
 interface SidebarProps {
     nodeTemplates: NodeTemplate[];
-    setCurrentView: (view: 'home' | 'whiteboard') => void;
+    isHome: boolean;
     isMenuMode: boolean;
     setIsMenuMode: (isMenuMode: boolean) => void;
     currentSection: 'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account';
     setCurrentSection: (section: 'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account') => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView, isMenuMode, setIsMenuMode, currentSection, setCurrentSection }) => {
+const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, isHome, isMenuMode, setIsMenuMode, currentSection, setCurrentSection }) => {
     const { project, setProject } = useProject();
     const { connections, setConnections } = useConnections();
     const { user } = useUser();
-
+    const router = useRouter();
+    
     const handleAddNode = (template: NodeTemplate) => {
         const newNode: Node = {
             id: `node-${Date.now()}`,
@@ -50,24 +52,24 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView, isMenu
 
     const renderContent = () => {
         switch (currentSection) {
-            case 'home':
-                return (
-                    <div className="space-y-4">
-                        <h3 className="font-medium">Welcome Back!</h3>
-                        {/* <div className="space-y-2">
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                                <h4 className="font-medium text-blue-700">Recent Projects</h4>
-                                <div className="mt-2 space-y-2">
-                                    <div className="text-sm text-blue-600">Project 1</div>
-                                    <div className="text-sm text-blue-600">Project 2</div>
-                                </div>
-                            </div>
-                            <button className="w-full p-2 bg-blue-500 text-white rounded">
-                                New Project
-                            </button>
-                        </div> */}
-                    </div>
-                );
+            // case 'home':
+            //     return (
+            //         <div className="space-y-4">
+            //             <h3 className="font-medium">Welcome Back!</h3>
+            //             <div className="space-y-2">
+            //                 <div className="bg-blue-50 p-4 rounded-lg">
+            //                     <h4 className="font-medium text-blue-700">Recent Projects</h4>
+            //                     <div className="mt-2 space-y-2">
+            //                         <div className="text-sm text-blue-600">Project 1</div>
+            //                         <div className="text-sm text-blue-600">Project 2</div>
+            //                     </div>
+            //                 </div>
+            //                 <button className="w-full p-2 bg-blue-500 text-white rounded">
+            //                     New Project
+            //                 </button>
+            //             </div>
+            //         </div>
+            //     );
             case 'account':
                 return (
                     <div className="space-y-4">
@@ -177,24 +179,21 @@ const Sidebar: React.FC<SidebarProps> = ({ nodeTemplates, setCurrentView, isMenu
                     <div className="p-2 space-y-1">
                         <button 
                             onClick={() => { 
-                                setCurrentSection('home'); 
-                                setIsMenuMode(false);
-                                setCurrentView('home');
+                                router.push('/');
                             }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
                             <Home size={18} /> Home
                         </button>
-                        <button 
+                        {!isHome && <button 
                             onClick={() => { 
                                 setCurrentSection('nodes'); 
                                 setIsMenuMode(false);
-                                setCurrentView('whiteboard');
                             }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"
                         >
                             <Database size={18} /> White Board
-                        </button>
+                        </button>}
                         <button 
                             onClick={() => { setCurrentSection('settings'); setIsMenuMode(false); }}
                             className="w-full p-2 text-left hover:bg-gray-100 rounded flex items-center gap-2"

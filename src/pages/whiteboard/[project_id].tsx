@@ -60,7 +60,7 @@ const WhiteboardPage: React.FC = () => {
         <div className="w-full h-screen bg-gray-100 whiteboard">
             <Sidebar 
                 nodeTemplates={nodeTemplates} 
-                setCurrentView={() => {}}
+                isHome={false}
                 isMenuMode={isMenuMode}
                 setIsMenuMode={setIsMenuMode}
                 currentSection={currentSection}
