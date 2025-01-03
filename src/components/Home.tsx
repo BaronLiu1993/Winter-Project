@@ -54,6 +54,9 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
         });
     };
 
+    const handleEditProject = () => {
+        setContextMenu({ ...contextMenu, show: false });
+    };
 
     const handleDeleteProject = async () => {
         try {
