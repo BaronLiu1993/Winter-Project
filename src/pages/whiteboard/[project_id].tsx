@@ -32,7 +32,7 @@ const WhiteboardPage: React.FC = () => {
 
     useEffect(() => {
         if (user && project_id) {
-            console.log('Loading project:', project_id);
+            setProject(null);
             openWhiteBoard(user.id, project_id as string)
                 .then(projectData => {
                     if (projectData) {

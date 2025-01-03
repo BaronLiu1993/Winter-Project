@@ -107,7 +107,7 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
 
                 {/* Project Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {projects.map(project => (
+                    {[...projects].reverse().map(project => (
                         <div 
                             key={project.id}
                             onClick={() => handleProjectClick(project.id)}
