@@ -19,8 +19,8 @@ const WhiteboardPage: React.FC = () => {
     const { user } = useUser();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isSignup, setIsSignup] = useState(false);
-    const [isMenuMode, setIsMenuMode] = useState(true);
-    const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('home');
+    const [isMenuMode, setIsMenuMode] = useState(false);
+    const [currentSection, setCurrentSection] = useState<'home' | 'nodes' | 'settings' | 'code' | 'data' | 'docs' | 'account'>('nodes');
 
     useEffect(() => {
         if (user && project_id) {
