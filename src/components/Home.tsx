@@ -23,6 +23,7 @@ interface ContextMenu {
 
 const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) => {
     const { user } = useUser();
+    const router = useRouter();
     const [contextMenu, setContextMenu] = useState<ContextMenu>({
         show: false,
         x: 0,
@@ -39,7 +40,7 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
     }, [user]);
 
     const handleProjectClick = (projectId: string) => {
-        console.log('Project clicked:', projectId);
+        router.push(`/whiteboard/${projectId}`);
     };
 
     //right click project panel to open context menu
