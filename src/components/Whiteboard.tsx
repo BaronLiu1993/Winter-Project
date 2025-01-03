@@ -38,6 +38,10 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     const dragStart = useRef({ x: 0, y: 0 });
     const { GlobalZIndex, setGlobalZIndex } = useGlobalZIndex();        
     const [executionResult, setExecutionResult] = useState<string>('');
+    
+    //bottom right buttons
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveStatus, setSaveStatus] = useState<'success' | 'error' | ''>('');
 
 
     useEffect(() => {
@@ -250,7 +254,30 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     const handleSaveProject = async () => {
         if (!project || !user) return;
 
-        const response = await uploadWhiteBoard(user.id, project);
+        setIsSaving(true);
+        setSaveStatus('');
+
+        try {
+            const response = await uploadWhiteBoard(user.id, project);
+            setSaveStatus('success');
+            
+            // Reset status after 2 seconds
+            setTimeout(() => {
+                setSaveStatus('');
+            }, 2000);
+
+        } catch (error) {
+            console.error('Failed to save project:', error);
+            setSaveStatus('error');
+            
+            // Reset error status after 2 seconds
+            setTimeout(() => {
+                setSaveStatus('');
+            }, 2000);
+            
+        } finally {
+            setIsSaving(false);
+        }
     };
 
 
@@ -355,13 +382,27 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                         </div>
                     )}
                     <button
-                        className="px-6 py-2.5 bg-blue-500 text-white font-medium rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-200"
+                        className={`w-32 px-6 py-2.5 font-medium rounded-lg shadow-md transition-all duration-200 ${
+                            isSaving 
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : saveStatus === 'success'
+                                ? 'bg-green-500 hover:bg-green-600'
+                                : saveStatus === 'error'
+                                ? 'bg-red-500 hover:bg-red-600'
+                                : 'bg-blue-500 hover:bg-blue-600'
+                        }`}
                         onClick={handleSaveProject}
+                        disabled={isSaving}
                     >
-                        Save
+                        <span className="text-white">
+                            {isSaving ? 'Saving...' :
+                             saveStatus === 'success' ? 'Saved!' :
+                             saveStatus === 'error' ? 'Failed!' :
+                             'Save'}
+                        </span>
                     </button>
                     <button
-                        className="px-6 py-2.5 bg-green-500 text-white font-medium rounded-lg shadow-md hover:bg-green-600 transition-colors duration-200"
+                        className="w-32 px-6 py-2.5 bg-green-500 text-white font-medium rounded-lg shadow-md hover:bg-green-600 transition-colors duration-200"
                         onClick={handleExecute}
                     >
                         Execute
