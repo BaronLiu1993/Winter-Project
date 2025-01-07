@@ -2,10 +2,11 @@ from typing import final
 
 from base_script_builder import BaseScriptGenerator
 from Backend.data_api.app.utils.script_builder.script_builder_models import *
-from constants import * 
 
-BLOCK_SCRIPT_MAP = {"": lambda: function1(),
-                    }
+BLOCK_SCRIPT_MAP = {"DataLoader": lambda node_data, node_var, input_vars: data_loader_script(node_data, node_var, input_vars),
+                    "ImageAugmentation": lambda node_data, node_var, input_vars: image_augmentation_script(node_data, node_var, input_vars),
+                    "ModelTraining": lambda node_data, node_var, input_vars: model_training_script(node_data, node_var, input_vars)
+}
 
 class EditScriptGenerator(BaseScriptGenerator):
     def __init__(self, payload: dict):
