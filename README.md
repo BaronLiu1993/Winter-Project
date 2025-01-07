@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Data Cleaner and Drag-and-Drop Machine Learning Model Builder
 
 An interactive, web-based application for data cleaning and building machine learning models with a drag-and-drop interface. Built with Apache Spark, PyTorch, ReactJS, Node.js, WebSockets, and Django, this project enables seamless data preprocessing and machine learning model creation.
@@ -28,17 +27,26 @@ An interactive, web-based application for data cleaning and building machine lea
 - **VM:** AWS + Docker + Kubernetes.
 
 ## How to Run
-Write Later
 
-=======
+When first cloning the repo, run the following commands to install the dependencies:
+
+```
+pip install -r requirements.txt
+npm install
+```
+
 to run the server:
 
+```
 cd backend/data_api
 python manage.py runserver
+```
 
 
 to run the frontend:
 
+```
 cd frontend
 npm run dev
->>>>>>> front-end
+```
+
