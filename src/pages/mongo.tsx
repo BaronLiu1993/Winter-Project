@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Inter } from "next/font/google";
-import client from "../../server/db/mongodb";
+import client from "../server/db/mongodb";
 import type { InferGetServerSidePropsType, GetServerSideProps } from "next";
 import { useEffect, useState } from "react";
 
