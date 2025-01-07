@@ -35,6 +35,9 @@ pip install -r requirements.txt
 npm install
 ```
 
+to run mongoDB locally, remember to create a .env file with the MONGODB_URI variable.
+
+
 to run the server:
 
 ```
