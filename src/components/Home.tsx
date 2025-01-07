@@ -69,7 +69,7 @@ const Home: React.FC<HomeProps> = ({ setIsModalOpen, projects, setProjects }) =>
     };
 
     return (
-        <div className="w-full h-full bg-gray-50 p-8">
+        <div className="w-full h-full bg-gray-50 p-8 overflow-y-auto max-h-screen">
             <div className="max-w-4xl mx-auto space-y-8">
                 {/* Welcome Section */}
                 <div className="bg-white rounded-xl shadow-sm p-6">
