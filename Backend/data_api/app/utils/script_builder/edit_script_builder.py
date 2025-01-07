@@ -3,7 +3,7 @@ from typing import final
 from Backend.data_api.app.utils.script_builder.base_script_builder import BaseScriptGenerator
 from constants import * # noqa
 
-class ModelBuilderScriptGenerator(BaseScriptGenerator):
+class EditScriptGenerator(BaseScriptGenerator):
     def __init__(self, payload: dict):
         super().__init__(payload)
         self.id = payload["pipelineId"]
@@ -18,13 +18,13 @@ class ModelBuilderScriptGenerator(BaseScriptGenerator):
 
     
 
-class DataLoaderScriptGenerator(BaseScriptGenerator):
-    def __init__(self, payload: dict):
-        super().__init__(payload)
-        self.datasetPath = payload["datasetPath"]
-        self.batchSize = payload["batchSize"]
-        self.shuffle = payload["shuffle"]
-        self.models_used = ["data loading"]
+# class DataLoaderScriptGenerator(BaseScriptGenerator):
+#     def __init__(self, payload: dict):
+#         super().__init__(payload)
+#         self.datasetPath = payload["datasetPath"]
+#         self.batchSize = payload["batchSize"]
+#         self.shuffle = payload["shuffle"]
+#         self.models_used = ["data loading"]
 
-    def _raw_script(self) -> str:
-        raise NotImplementedError("DataLoaderScriptGenerator is not implemented yet.")
+#     def _raw_script(self) -> str:
+#         raise NotImplementedError("DataLoaderScriptGenerator is not implemented yet.")

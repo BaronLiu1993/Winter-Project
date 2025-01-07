@@ -1,5 +1,5 @@
 
-from Backend.data_api.app.utils.script_builder.base_script_builder import BaseScriptGenerator
+from Backend.data_api.app.utils.script_builder.edit_script_builder import EditScriptGenerator
 from topological_sort import TopologicalSorter
 
 class PyTorchScriptGenerator:
@@ -171,7 +171,6 @@ class PyTorchScriptGenerator:
             trainer_writer(lines, node_var, input_loader_var, model_type, learning_rate, epochs, optimizer_type, beta1, beta2, momentum)
 
         elif node_type == "ModelBuilding":
-            input_loader_var 
             pass
 
         else:
@@ -205,7 +204,7 @@ def process_pipeline(data):
         connections = data.get('connections', [])
 
 
-        generator = BaseScriptGenerator(nodes, connections)
+        generator = EditScriptGenerator(nodes, connections)
         topological_sorter = TopologicalSorter(nodes, connections)
         adjacency_list, in_degrees = topological_sorter._build_graph()
         
@@ -224,6 +223,10 @@ def process_pipeline(data):
             
             node_var_name = f"{node_type.lower()}_{node_id}"  # e.g., dataloader_node1
             topological_sorter.node_var_map[node_id] = node_var_name
+
+            
+
+
 
             
 
