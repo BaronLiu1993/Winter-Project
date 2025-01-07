@@ -210,7 +210,7 @@ def process_pipeline(data):
         
         # Perform topological sort
         sorted_nodes = topological_sorter._topological_sort(adjacency_list, in_degrees)
-
+        raw_script = []
 
         for node_id in sorted_nodes:
             node = nodes[node_id]
@@ -223,6 +223,14 @@ def process_pipeline(data):
             
             node_var_name = f"{node_type.lower()}_{node_id}"  # e.g., dataloader_node1
             topological_sorter.node_var_map[node_id] = node_var_name
+
+            script = generator._raw_script(node_type = node_type,
+                                      node_data = node_data,
+                                      node_var = node_var_name,
+                                      input_vars = input_vars)
+            raw_script.extend(script)
+            
+        generator._imports()
 
             
 
@@ -237,8 +245,7 @@ def process_pipeline(data):
 
         return script_string
 
-        
-    
+
     except Exception as e:
         return {
             'status': 'error',
