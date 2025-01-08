@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from ..data_api.viewset import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('data-objects/', views.data_object_list, name='data-object-list'),
+
 ]

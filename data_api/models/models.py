@@ -1,7 +1,6 @@
 from django.db import models
 
-# Create your models here.
-#Analyse Dataset
+#Dataset object that will be analysed, cleaned and reconstructed from scratch by AI agents + Apache Spark Data Handling
 class data_object(models.Model):
     file_name = models.CharField(max_length=255)
     file_content = models.BinaryField()  
